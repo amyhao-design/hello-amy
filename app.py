@@ -9,4 +9,4 @@ app = Flask(__name__)
 @app.route('/')
 def hello_world():
     # This function runs and returns some HTML text to the browser.
-    return '<h1>Amy is learning how to vibe code! She is vibing!</h1>'
+    return '<h1>HELLO MI STINKY</h1>'
