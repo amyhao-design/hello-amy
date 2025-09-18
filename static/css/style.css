@@ -424,6 +424,13 @@ body {
     margin-bottom: 15px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.bonus-category h3 > div:first-child {
+    display: flex;
+    align-items: center;
     gap: 10px;
 }
 
@@ -711,6 +718,66 @@ body {
 .btn-use-credit:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+}
+
+/* Used Credits Button */
+.btn-used-credits {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.85em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.btn-used-credits:hover {
+    background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(108, 117, 125, 0.3);
+}
+
+.btn-used-credits.active {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+.btn-used-credits.active:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+}
+
+/* Used Credits Modal Specific Styling */
+.used-credits-modal-content {
+    max-width: 800px;
+    width: 95%;
+    max-height: 90vh;
+    overflow: hidden;
+}
+
+.used-credits-modal-content .modal-body {
+    padding: 20px 30px 30px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.used-credits-modal-content .progress-grid {
+    gap: 15px;
+}
+
+.used-credits-modal-content .progress-item {
+    opacity: 0.8;
+    border-left-color: #6c757d;
+}
+
+.used-credits-modal-content .no-used-credits {
+    text-align: center;
+    padding: 60px 20px;
+    color: #7f8c8d;
+    font-style: italic;
+    font-size: 1.1em;
 }
 
 /* Responsive Design */

@@ -1445,6 +1445,59 @@ def api_usage():
                 'error': str(e)
             }), 500
 
+@app.route('/api/used-credits/<frequency>', methods=['GET'])
+def get_used_credits_api(frequency):
+    """
+    API Endpoint: Get used credits for a specific frequency
+    """
+    try:
+        # Map the frequency names to match existing function expectations
+        frequency_map = {
+            'semiannual': 'semi-annual',
+            'onetime': 'onetime'
+        }
+
+        mapped_frequency = frequency_map.get(frequency, frequency)
+
+        # Validate frequency
+        valid_frequencies = ['annual', 'semi-annual', 'quarterly', 'monthly', 'onetime']
+        if mapped_frequency not in valid_frequencies:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid frequency. Must be one of: annual, semiannual, quarterly, monthly, onetime'
+            }), 400
+
+        # Get used credits using existing function
+        used_credits = get_used_credits_by_frequency(mapped_frequency)
+
+        # Format the data for the frontend
+        formatted_credits = []
+        for credit in used_credits:
+            formatted_credit = {
+                'benefit_name': credit.get('benefit_name', ''),
+                'card_name': credit.get('card_name', ''),
+                'credit_amount': currency_filter(credit.get('credit_amount', 0)),
+                'description': credit.get('description', ''),
+                'has_progress': credit.get('has_progress', False),
+                'progress_percent': credit.get('progress_percent', 0),
+                'current_amount': currency_filter(credit.get('current_amount', 0)),
+                'required_amount': currency_filter(credit.get('required_amount', 0)),
+                'reset_date': credit.get('reset_date', '')
+            }
+            formatted_credits.append(formatted_credit)
+
+        return jsonify({
+            'success': True,
+            'credits': formatted_credits,
+            'count': len(formatted_credits)
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 # === NEW INTERACTIVE ROUTES ===
 
 @app.route('/add-card', methods=['POST'])

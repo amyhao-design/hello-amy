@@ -124,13 +124,13 @@
         <!-- Annual Credits Sub-section -->
         <div class="bonus-category">
             <h3>
-                <div class="category-icon" style="background: #dc3545;">📅</div>
-                Recurring - Annual
-                {% if used_annual_credits %}
-                <button class="btn-view-used" onclick="toggleUsedCredits('annual')" id="btn-annual">
-                    View Used Credits ({{ used_annual_credits|length }})
+                <div>
+                    <div class="category-icon" style="background: #dc3545;">📅</div>
+                    Recurring - Annual
+                </div>
+                <button class="btn-used-credits" onclick="toggleUsedCredits('annual')" id="btn-annual">
+                    Used credits
                 </button>
-                {% endif %}
             </h3>
             <div class="progress-grid">
                 {% for credit in annual_credits %}
@@ -169,52 +169,18 @@
                 {% endfor %}
             </div>
 
-            <!-- Used Annual Credits (hidden by default) -->
-            {% if used_annual_credits %}
-            <div class="progress-grid" id="used-annual-credits" style="display: none; margin-top: 20px; opacity: 0.7;">
-                {% for credit in used_annual_credits %}
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <div class="progress-title">
-                            <div class="credit-name-primary">{{ credit.benefit_name }}</div>
-                            <div class="card-name-secondary">{{ credit.card_name }}</div>
-                        </div>
-                        <div class="progress-amount">{{ credit.credit_amount|currency }}</div>
-                    </div>
-                    <div class="progress-description">
-                        {{ credit.description }}
-                    </div>
-                    {% if credit.has_progress %}
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: {{ credit.progress_percent }}%"></div>
-                    </div>
-                    <div class="progress-text">
-                        <span>{{ credit.current_amount|currency }} / {{ credit.required_amount|currency }}</span>
-                        <span>{{ credit.progress_percent }}%</span>
-                    </div>
-                    {% endif %}
-                    <div class="progress-deadline">
-                        Resets: {{ credit.reset_date }}
-                    </div>
-                    <div class="credit-actions">
-                        <span class="status-badge used">Used</span>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
         </div>
 
         <!-- Semi-Annual Credits Sub-section -->
         <div class="bonus-category" style="margin-top: 30px;">
             <h3>
-                <div class="category-icon" style="background: #e83e8c;">📅</div>
-                Recurring - Semi-Annual
-                {% if used_semiannual_credits %}
-                <button class="btn-view-used" onclick="toggleUsedCredits('semiannual')" id="btn-semiannual">
-                    View Used Credits ({{ used_semiannual_credits|length }})
+                <div>
+                    <div class="category-icon" style="background: #e83e8c;">📅</div>
+                    Recurring - Semi-Annual
+                </div>
+                <button class="btn-used-credits" onclick="toggleUsedCredits('semiannual')" id="btn-semiannual">
+                    Used credits
                 </button>
-                {% endif %}
             </h3>
             <div class="progress-grid">
                 {% for credit in semiannual_credits %}
@@ -252,18 +218,19 @@
                 </div>
                 {% endfor %}
             </div>
+
         </div>
 
         <!-- Quarterly Credits Sub-section -->
         <div class="bonus-category" style="margin-top: 30px;">
             <h3>
-                <div class="category-icon" style="background: #ffc107; color: #333;">📊</div>
-                Recurring - Quarterly
-                {% if used_quarterly_credits %}
-                <button class="btn-view-used" onclick="toggleUsedCredits('quarterly')" id="btn-quarterly">
-                    View Used Credits ({{ used_quarterly_credits|length }})
+                <div>
+                    <div class="category-icon" style="background: #ffc107; color: #333;">📊</div>
+                    Recurring - Quarterly
+                </div>
+                <button class="btn-used-credits" onclick="toggleUsedCredits('quarterly')" id="btn-quarterly">
+                    Used credits
                 </button>
-                {% endif %}
             </h3>
             <div class="progress-grid">
                 {% for credit in quarterly_credits %}
@@ -292,18 +259,19 @@
                 </div>
                 {% endfor %}
             </div>
+
         </div>
 
         <!-- Monthly Credits Sub-section -->
         <div class="bonus-category" style="margin-top: 30px;">
             <h3>
-                <div class="category-icon" style="background: #17a2b8;">📱</div>
-                Recurring - Monthly
-                {% if used_monthly_credits %}
-                <button class="btn-view-used" onclick="toggleUsedCredits('monthly')" id="btn-monthly">
-                    View Used Credits ({{ used_monthly_credits|length }})
+                <div>
+                    <div class="category-icon" style="background: #17a2b8;">📱</div>
+                    Recurring - Monthly
+                </div>
+                <button class="btn-used-credits" onclick="toggleUsedCredits('monthly')" id="btn-monthly">
+                    Used credits
                 </button>
-                {% endif %}
             </h3>
             <div class="progress-grid">
                 {% for credit in monthly_credits %}
@@ -332,13 +300,19 @@
                 </div>
                 {% endfor %}
             </div>
+
         </div>
 
         <!-- One Time Credits Sub-section -->
         <div class="bonus-category" style="margin-top: 30px;">
             <h3>
-                <div class="category-icon" style="background: #6f42c1;">⭐</div>
-                One Time
+                <div>
+                    <div class="category-icon" style="background: #6f42c1;">⭐</div>
+                    One Time
+                </div>
+                <button class="btn-used-credits" onclick="toggleUsedCredits('onetime')" id="btn-onetime">
+                    Used credits
+                </button>
             </h3>
             <div class="progress-grid">
                 {% for credit in onetime_credits %}
@@ -364,6 +338,7 @@
                 </div>
                 {% endfor %}
             </div>
+
         </div>
     </div>
 </div>
@@ -407,6 +382,21 @@
                 <button type="submit" class="btn-primary">Add Card</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Used Credits Modal -->
+<div id="usedCreditsModal" class="modal">
+    <div class="modal-content used-credits-modal-content">
+        <div class="modal-header">
+            <h3 id="usedCreditsModalTitle">Used Credits</h3>
+            <span class="close" onclick="closeUsedCreditsModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="usedCreditsContent" class="progress-grid">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -572,23 +562,107 @@ function markCreditAsUsed(creditType, cardName, creditIdentifier) {
 
 // Close modal when clicking outside of it
 window.onclick = function(event) {
-    const modal = document.getElementById('addCardModal');
-    if (event.target == modal) {
+    const addCardModal = document.getElementById('addCardModal');
+    const usedCreditsModal = document.getElementById('usedCreditsModal');
+
+    if (event.target == addCardModal) {
         closeAddCardModal();
+    } else if (event.target == usedCreditsModal) {
+        closeUsedCreditsModal();
     }
 }
 
 function toggleUsedCredits(frequency) {
-    const usedCreditsDiv = document.getElementById(`used-${frequency}-credits`);
-    const button = document.getElementById(`btn-${frequency}`);
+    // Open the modal with used credits for this frequency
+    openUsedCreditsModal(frequency);
+}
 
-    if (usedCreditsDiv.style.display === 'none') {
-        usedCreditsDiv.style.display = 'grid';
-        button.textContent = button.textContent.replace('View', 'Hide');
-    } else {
-        usedCreditsDiv.style.display = 'none';
-        button.textContent = button.textContent.replace('Hide', 'View');
+function openUsedCreditsModal(frequency) {
+    const modal = document.getElementById('usedCreditsModal');
+    const modalTitle = document.getElementById('usedCreditsModalTitle');
+    const modalContent = document.getElementById('usedCreditsContent');
+
+    // Set the modal title based on frequency
+    const titles = {
+        'annual': 'Used Credits - Recurring Annual',
+        'semiannual': 'Used Credits - Recurring Semi-Annual',
+        'quarterly': 'Used Credits - Recurring Quarterly',
+        'monthly': 'Used Credits - Recurring Monthly',
+        'onetime': 'Used Credits - One Time'
+    };
+    modalTitle.textContent = titles[frequency] || 'Used Credits';
+
+    // Fetch used credits data for this frequency
+    fetch(`/api/used-credits/${frequency}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayUsedCredits(data.credits);
+            } else {
+                modalContent.innerHTML = '<div class="no-used-credits"><p style="text-align: center; color: #7f8c8d; font-style: italic; padding: 40px;">No used credits yet</p></div>';
+            }
+            modal.style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching used credits:', error);
+            modalContent.innerHTML = '<div class="no-used-credits"><p style="text-align: center; color: #dc3545; padding: 40px;">Error loading used credits</p></div>';
+            modal.style.display = 'block';
+        });
+}
+
+function displayUsedCredits(credits) {
+    const modalContent = document.getElementById('usedCreditsContent');
+
+    if (!credits || credits.length === 0) {
+        modalContent.innerHTML = '<div class="no-used-credits"><p style="text-align: center; color: #7f8c8d; font-style: italic; padding: 40px;">No used credits yet</p></div>';
+        return;
     }
+
+    let html = '';
+    credits.forEach(credit => {
+        html += `
+            <div class="progress-item">
+                <div class="progress-header">
+                    <div class="progress-title">
+                        <div class="credit-name-primary">${credit.benefit_name}</div>
+                        <div class="card-name-secondary">${credit.card_name}</div>
+                    </div>
+                    <div class="progress-amount">${credit.credit_amount}</div>
+                </div>
+                <div class="progress-description">
+                    ${credit.description}
+                </div>`;
+
+        if (credit.has_progress) {
+            html += `
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${credit.progress_percent}%"></div>
+                </div>
+                <div class="progress-text">
+                    <span>${credit.current_amount} / ${credit.required_amount}</span>
+                    <span>${credit.progress_percent}%</span>
+                </div>`;
+        }
+
+        if (credit.reset_date) {
+            html += `
+                <div class="progress-deadline">
+                    Resets: ${credit.reset_date}
+                </div>`;
+        }
+
+        html += `
+                <div class="credit-actions">
+                    <span class="status-badge used">Used</span>
+                </div>
+            </div>`;
+    });
+
+    modalContent.innerHTML = html;
+}
+
+function closeUsedCreditsModal() {
+    document.getElementById('usedCreditsModal').style.display = 'none';
 }
 </script>
 {% endblock %}
