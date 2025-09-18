@@ -1,0 +1,756 @@
+/* Credit Card Tracker - Card Wallet Design */
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: #f5f6fa;
+    min-height: 100vh;
+}
+
+/* Container */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Top Navigation */
+.top-nav {
+    background: white;
+    border-radius: 15px;
+    padding: 20px 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.top-nav h1 {
+    color: #2c3e50;
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #7f8c8d;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    background: #667eea;
+    color: white;
+}
+
+/* Main Content */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Card Wallet Section */
+.card-wallet-section {
+    background: #e8e9ed;
+    border-radius: 20px;
+    padding: 30px;
+    position: relative;
+}
+
+.section-title {
+    color: #2c3e50;
+    font-size: 1.4em;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.section-title-text {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wallet-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.wallet-arrow {
+    background: white;
+    border: 2px solid #667eea;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #667eea;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.wallet-arrow:hover {
+    background: #667eea;
+    color: white;
+    transform: scale(1.1);
+}
+
+.wallet-arrow:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.card-wallet {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-container {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.card-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Credit Card Design */
+.credit-card {
+    min-width: 280px;
+    max-width: 280px;
+    height: 180px;
+    border-radius: 16px;
+    padding: 20px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+/* Card Brand Colors */
+.credit-card.chase {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+}
+
+.credit-card.amex {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+}
+
+.credit-card.capital-one {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+}
+
+.credit-card.marriott {
+    background: linear-gradient(135deg, #7c2d12 0%, #ea580c 100%);
+}
+
+.credit-card.hilton {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+}
+
+.credit-card.venmo {
+    background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+}
+
+.credit-card.hyatt {
+    background: linear-gradient(135deg, #7c2d12 0%, #dc2626 100%);
+}
+
+.credit-card.atmos {
+    background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+}
+
+.credit-card.us-bank {
+    background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%);
+}
+
+.credit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.card-name {
+    font-size: 1.1em;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    line-height: 1.3;
+    max-width: 200px;
+}
+
+.card-issuer {
+    font-size: 0.8em;
+    opacity: 0.9;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.card-chip {
+    width: 30px;
+    height: 24px;
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    border-radius: 4px;
+    opacity: 0.9;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.card-benefits {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.card-number {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    opacity: 0.8;
+    letter-spacing: 2px;
+}
+
+/* Two Column Layout */
+.two-column-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+/* Progress Section */
+.progress-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.column-header {
+    color: #2c3e50;
+    font-size: 1.5em;
+    font-weight: 700;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 3px solid #667eea;
+    padding-bottom: 10px;
+}
+
+.column-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+}
+
+.bonuses-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.credits-icon {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.progress-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.progress-item {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 4px solid #667eea;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.progress-title {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1.1em;
+}
+
+.progress-amount {
+    font-weight: 700;
+    color: #667eea;
+    font-size: 1.2em;
+}
+
+.credit-name {
+    font-weight: 700;
+    font-size: 1.1em;
+    color: #2c3e50;
+    margin-bottom: 2px;
+}
+
+.credit-name-primary {
+    font-weight: 700;
+    font-size: 1.2em;
+    color: #2c3e50;
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+
+.card-name {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #7f8c8d;
+    font-weight: 500;
+}
+
+.card-name-secondary {
+    font-size: 0.85em;
+    color: #7f8c8d;
+    font-weight: 400;
+    font-style: normal;
+    line-height: 1.2;
+}
+
+.progress-description {
+    color: #7f8c8d;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
+
+.progress-bar-container {
+    background: #e9ecef;
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 10px;
+    transition: width 0.6s ease;
+    position: relative;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 0.85em;
+    color: #6c757d;
+}
+
+.progress-deadline {
+    color: #dc3545;
+    font-weight: 600;
+    font-size: 0.85em;
+    margin-top: 5px;
+}
+
+/* Bonus Categories */
+.bonus-category {
+    margin-bottom: 25px;
+}
+
+.bonus-category h3 {
+    color: #2c3e50;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.category-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.signup-bonus .category-icon {
+    background: #28a745;
+}
+
+.monthly-bonus .category-icon {
+    background: #17a2b8;
+}
+
+.quarterly-bonus .category-icon {
+    background: #ffc107;
+    color: #333;
+}
+
+.annual-bonus .category-icon {
+    background: #dc3545;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Bonus Status Badges */
+.status-badge.completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.in-progress {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.not-started {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Credit Status Badges */
+.status-badge.used {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-badge.available {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+    background: white;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Recommendations */
+.recommendations {
+    margin-top: 25px;
+}
+
+.recommendation-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.recommendation-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+}
+
+.recommendation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.recommendation-multiplier {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
+/* Add Card Button */
+.add-card-btn {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+.add-card-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.3em;
+}
+
+.close {
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close:hover {
+    opacity: 0.7;
+}
+
+.modal-content form {
+    padding: 30px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+/* Credit Actions */
+.credit-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.btn-use-credit {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 6px 14px;
+    font-size: 0.8em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-use-credit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    .top-nav {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .nav-links {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .credit-card {
+        min-width: 260px;
+        max-width: 260px;
+    }
+
+    .card-wallet-section {
+        padding: 20px;
+    }
+
+    .two-column-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .section-title {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .wallet-controls {
+        justify-content: center;
+    }
+}

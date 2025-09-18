@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+
+{% block title %}{{ card.name }} - Credit Card Tracker{% endblock %}
+
+{% block content %}
+<div class="progress-section">
+    <h2 class="section-title">
+        💳 {{ card.name }}
+    </h2>
+    <p style="color: #7f8c8d; margin-bottom: 25px;">
+        Issued by {{ card.issuer }} • {{ card.total_benefits }} total benefits
+    </p>
+
+    <!-- Bonuses Section -->
+    {% if signup_bonuses or spending_bonuses %}
+    <div class="bonus-category">
+        <h3>
+            <div class="category-icon" style="background: #28a745;">🎯</div>
+            Bonuses
+        </h3>
+        
+        <!-- Signup Bonuses -->
+        {% if signup_bonuses %}
+        <h4 style="margin-top: 25px; color: #667eea; font-size: 1.1em;">Sign-up Bonuses</h4>
+        <div class="progress-grid">
+            {% for bonus in signup_bonuses %}
+            <div class="progress-item">
+                <div class="progress-header">
+                    <div class="progress-title">{{ bonus.bonus_amount }}</div>
+                    <div class="progress-amount">{{ bonus.description }}</div>
+                </div>
+                {% if bonus.required_spend %}
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: {{ bonus.progress_percent }}%"></div>
+                </div>
+                <div class="progress-text">
+                    <span>{{ bonus.current_spend|currency }} / {{ bonus.required_spend|currency }}</span>
+                    <span>{{ bonus.progress_percent }}%</span>
+                </div>
+                {% endif %}
+                {% if bonus.deadline %}
+                <div class="progress-deadline">
+                    Deadline: {{ bonus.deadline }}
+                </div>
+                {% endif %}
+                <span class="status-badge {{ bonus.status }}">{{ bonus.status_text }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Threshold Bonuses -->
+        {% if threshold_bonuses %}
+        <h4 style="margin-top: 25px; color: #e83e8c; font-size: 1.1em;">Threshold Bonuses</h4>
+        <div class="progress-grid">
+            {% for bonus in threshold_bonuses %}
+            <div class="progress-item">
+                <div class="progress-header">
+                    <div class="progress-title">{{ bonus.bonus_amount }}</div>
+                    <div class="progress-amount">
+                        {% if bonus.required_spend and bonus.required_spend > 0 %}
+                            {{ bonus.required_spend|currency }} threshold
+                        {% else %}
+                            {{ bonus.frequency.title() }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="progress-description">
+                    {{ bonus.description }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Spending Bonuses -->
+        {% if spending_bonuses %}
+        <h4 style="margin-top: 25px; color: #667eea; font-size: 1.1em;">Other Spending Bonuses</h4>
+        <div class="progress-grid">
+            {% for bonus in spending_bonuses %}
+            <div class="progress-item">
+                <div class="progress-header">
+                    <div class="progress-title">{{ bonus.category }}</div>
+                    <div class="progress-amount">{{ bonus.multiplier|multiplier }}</div>
+                </div>
+                <div class="progress-description">
+                    {{ bonus.description }}
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: {{ bonus.progress_percent }}%"></div>
+                </div>
+                <div class="progress-text">
+                    <span>{{ bonus.current_spend|currency }} / {{ bonus.cap_amount|currency }}</span>
+                    <span>{{ bonus.progress_percent }}%</span>
+                </div>
+                <div class="progress-deadline">
+                    Resets: {{ bonus.reset_date }}
+                </div>
+                <span class="status-badge {{ bonus.status }}">{{ bonus.status_text }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Other Bonuses Section -->
+    {% if other_bonuses %}
+    <div class="bonus-category" style="margin-top: 30px;">
+        <h3>
+            <div class="category-icon" style="background: #28a745;">🎖️</div>
+            Other Bonuses
+        </h3>
+        <div class="progress-grid">
+            {% for bonus in other_bonuses %}
+            <div class="progress-item">
+                <div class="progress-header">
+                    <div class="progress-title">{{ bonus.bonus_amount }}</div>
+                    <div class="progress-amount">
+                        {% if bonus.required_spend and bonus.required_spend > 0 %}
+                            ${{ bonus.required_spend|currency }}
+                        {% else %}
+                            {{ bonus.frequency.title() }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="progress-description">
+                    {{ bonus.description }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Credits Section -->
+    {% if annual_credits or semiannual_credits or quarterly_credits or monthly_credits or onetime_credits %}
+    <div class="bonus-category" style="margin-top: 30px;">
+        <h3>
+            <div class="category-icon" style="background: #dc3545;">💳</div>
+            Credits
+        </h3>
+        
+        <!-- Annual Credits -->
+        {% if annual_credits %}
+        <h4 style="margin-top: 25px; color: #dc3545; font-size: 1.1em;">Recurring - Annual</h4>
+        <div class="progress-grid">
+            {% for credit in annual_credits %}
+            <div class="progress-item">
+                <div class="progress-header">
+                    <div class="progress-title">
+                        <div class="credit-name-primary">{{ credit.benefit_name }}</div>
+                    </div>
+                    <div class="progress-amount">{{ credit.credit_amount|currency }}</div>
+                </div>
+                <div class="progress-description">
+                    {{ credit.description }}
+                </div>
+                {% if credit.has_progress %}
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: {{ credit.progress_percent }}%"></div>
+                </div>
+                <div class="progress-text">
+                    <span>{{ credit.current_amount|currency }} / {{ credit.required_amount|currency }}</span>
+                    <span>{{ credit.progress_percent }}%</span>
+                </div>
+                {% endif %}
+                {% if credit.reset_date %}
+                <div class="progress-deadline">
+                    Resets: {{ credit.reset_date }}
+                </div>
+                {% endif %}
+                <span class="status-badge {{ credit.status }}">{{ credit.status_text }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Semi-Annual Credits -->
+        {% if semiannual_credits %}
+        <h4 style="margin-top: 25px; color: #e83e8c; font-size: 1.1em;">Recurring - Semi-Annual</h4>
+        <div class="progress-grid">
+            {% for credit in semiannual_credits %}
+            <div class="progress-item">
+                <div class="progress-header">
+                    <div class="progress-title">
+                        <div class="credit-name-primary">{{ credit.benefit_name }}</div>
+                    </div>
+                    <div class="progress-amount">{{ credit.credit_amount|currency }}</div>
+                </div>
+                <div class="progress-description">
+                    {{ credit.description }}
+                </div>
+                {% if credit.has_progress %}
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: {{ credit.progress_percent }}%"></div>
+                </div>
+                <div class="progress-text">
+                    <span>{{ credit.current_amount|currency }} / {{ credit.required_amount|currency }}</span>
+                    <span>{{ credit.progress_percent }}%</span>
+                </div>
+                {% endif %}
+                {% if credit.reset_date %}
+                <div class="progress-deadline">
+                    Resets: {{ credit.reset_date }}
+                </div>
+                {% endif %}
+                <span class="status-badge {{ credit.status }}">{{ credit.status_text }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Quarterly Credits -->
+        {% if quarterly_credits %}
+        <h4 style="margin-top: 25px; color: #ffc107; font-size: 1.1em;">Recurring - Quarterly</h4>
+        <div class="progress-grid">
+            {% for credit in quarterly_credits %}
+            <div class="progress-item">
+                <div class="progress-header">
+                    <div class="progress-title">
+                        <div class="credit-name-primary">{{ credit.benefit_name }}</div>
+                    </div>
+                    <div class="progress-amount">{{ credit.credit_amount|currency }}</div>
+                </div>
+                <div class="progress-description">
+                    {{ credit.description }}
+                </div>
+                {% if credit.has_progress %}
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: {{ credit.progress_percent }}%"></div>
+                </div>
+                <div class="progress-text">
+                    <span>{{ credit.current_amount|currency }} / {{ credit.required_amount|currency }}</span>
+                    <span>{{ credit.progress_percent }}%</span>
+                </div>
+                {% endif %}
+                {% if credit.reset_date %}
+                <div class="progress-deadline">
+                    Resets: {{ credit.reset_date }}
+                </div>
+                {% endif %}
+                <span class="status-badge {{ credit.status }}">{{ credit.status_text }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Monthly Credits -->
+        {% if monthly_credits %}
+        <h4 style="margin-top: 25px; color: #17a2b8; font-size: 1.1em;">Recurring - Monthly</h4>
+        <div class="progress-grid">
+            {% for credit in monthly_credits %}
+            <div class="progress-item">
+                <div class="progress-header">
+                    <div class="progress-title">
+                        <div class="credit-name-primary">{{ credit.benefit_name }}</div>
+                    </div>
+                    <div class="progress-amount">{{ credit.credit_amount|currency }}</div>
+                </div>
+                <div class="progress-description">
+                    {{ credit.description }}
+                </div>
+                {% if credit.has_progress %}
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: {{ credit.progress_percent }}%"></div>
+                </div>
+                <div class="progress-text">
+                    <span>{{ credit.current_amount|currency }} / {{ credit.required_amount|currency }}</span>
+                    <span>{{ credit.progress_percent }}%</span>
+                </div>
+                {% endif %}
+                {% if credit.reset_date %}
+                <div class="progress-deadline">
+                    Resets: {{ credit.reset_date }}
+                </div>
+                {% endif %}
+                <span class="status-badge {{ credit.status }}">{{ credit.status_text }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- One-Time Credits -->
+        {% if onetime_credits %}
+        <h4 style="margin-top: 25px; color: #6f42c1; font-size: 1.1em;">One-Time</h4>
+        <div class="progress-grid">
+            {% for credit in onetime_credits %}
+            <div class="progress-item">
+                <div class="progress-header">
+                    <div class="progress-title">
+                        <div class="credit-name-primary">{{ credit.benefit_name }}</div>
+                    </div>
+                    {% if credit.credit_amount > 0 %}
+                    <div class="progress-amount">{{ credit.credit_amount|currency }}</div>
+                    {% else %}
+                    <div class="progress-amount">Benefit</div>
+                    {% endif %}
+                </div>
+                <div class="progress-description">
+                    {{ credit.description }}
+                </div>
+                {% if credit.has_progress %}
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: {{ credit.progress_percent }}%"></div>
+                </div>
+                <div class="progress-text">
+                    <span>{{ credit.current_amount|currency }} / {{ credit.required_amount|currency }}</span>
+                    <span>{{ credit.progress_percent }}%</span>
+                </div>
+                {% endif %}
+                {% if credit.reset_date %}
+                <div class="progress-deadline">
+                    Resets: {{ credit.reset_date }}
+                </div>
+                {% endif %}
+                <span class="status-badge {{ credit.status }}">{{ credit.status_text }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Points Multipliers Section -->
+    {% if multiplier_benefits %}
+    <div class="bonus-category" style="margin-top: 30px;">
+        <h3>
+            <div class="category-icon" style="background: #667eea;">🎯</div>
+            Points Multipliers
+        </h3>
+        <div class="progress-grid">
+            {% for benefit in multiplier_benefits %}
+            <div class="progress-item">
+                <div class="progress-header">
+                    <div class="progress-title">{{ benefit.category }}</div>
+                    <div class="progress-amount">{{ benefit.multiplier|multiplier }}</div>
+                </div>
+                <div class="progress-description">
+                    {{ benefit.description }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 30px; text-align: center;">
+        <a href="/" class="btn-primary">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

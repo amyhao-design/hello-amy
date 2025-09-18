@@ -1,0 +1,526 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Credit Card Tracker{% endblock %}
+
+{% block content %}
+<!-- Card Wallet Section -->
+<div class="card-wallet-section">
+    <h2 class="section-title">
+        <div class="section-title-text">
+            💳 Your Card Wallet
+        </div>
+        <div class="wallet-controls">
+            <button class="add-card-btn" onclick="openAddCardModal()">+ Add New Card</button>
+            <button class="wallet-arrow" id="prevButton" onclick="scrollCards('left')">‹</button>
+            <button class="wallet-arrow" id="nextButton" onclick="scrollCards('right')">›</button>
+        </div>
+    </h2>
+    <div class="card-wallet">
+        <div class="card-container" id="cardContainer">
+            {% for card in cards %}
+            <div class="credit-card {{ card.brand_class }}" onclick="viewCardDetails({{ card.id }})">
+                <div class="card-header">
+                    <div class="card-info">
+                        <div class="card-name">{{ card.name }}</div>
+                        <div class="card-issuer">{{ card.issuer }}</div>
+                    </div>
+                    <div class="card-chip"></div>
+                </div>
+                <div class="card-footer">
+                    <div class="card-benefits">
+                        {{ card.total_benefits }} Benefits
+                    </div>
+                    <div class="card-number">•••• •••• •••• {{ card.last_four }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Two Column Layout -->
+<div class="two-column-layout">
+    <!-- Bonuses Column -->
+    <div class="progress-section">
+        <h2 class="column-header">
+            <div class="column-icon bonuses-icon">🎯</div>
+            Bonuses
+        </h2>
+
+        <!-- Signup Bonuses Sub-section -->
+        <div class="bonus-category">
+            <h3>
+                <div class="category-icon" style="background: #28a745;">🚀</div>
+                Signup Bonuses
+            </h3>
+            <div class="progress-grid">
+                {% for bonus in signup_bonuses %}
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <div class="progress-title">{{ bonus.card_name }}</div>
+                        <div class="progress-amount">{{ bonus.bonus_amount|currency }}</div>
+                    </div>
+                    <div class="progress-description">
+                        {{ bonus.description }}
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: {{ bonus.progress_percent }}%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>{{ bonus.current_spend|currency }} / {{ bonus.required_spend|currency }}</span>
+                        <span>{{ bonus.progress_percent }}%</span>
+                    </div>
+                    {% if bonus.deadline %}
+                    <div class="progress-deadline">
+                        Deadline: {{ bonus.deadline }}
+                    </div>
+                    {% endif %}
+                    <span class="status-badge {{ bonus.status }}">{{ bonus.status_text }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Other Spending Bonuses Sub-section -->
+        <div class="bonus-category" style="margin-top: 30px;">
+            <h3>
+                <div class="category-icon" style="background: #17a2b8;">📈</div>
+                Other Spending Bonuses
+            </h3>
+            <div class="progress-grid">
+                {% for bonus in spending_bonuses %}
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <div class="progress-title">{{ bonus.card_name }} - {{ bonus.category }}</div>
+                        <div class="progress-amount">{{ bonus.multiplier }}x</div>
+                    </div>
+                    <div class="progress-description">
+                        {{ bonus.description }}
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: {{ bonus.progress_percent }}%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>{{ bonus.current_spend|currency }} / {{ bonus.cap_amount|currency }}</span>
+                        <span>{{ bonus.progress_percent }}%</span>
+                    </div>
+                    <div class="progress-deadline">
+                        Resets: {{ bonus.reset_date }}
+                    </div>
+                    <span class="status-badge {{ bonus.status }}">{{ bonus.status_text }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Credits Column -->
+    <div class="progress-section">
+        <h2 class="column-header">
+            <div class="column-icon credits-icon">💳</div>
+            Credits
+        </h2>
+
+        <!-- Annual Credits Sub-section -->
+        <div class="bonus-category">
+            <h3>
+                <div class="category-icon" style="background: #dc3545;">📅</div>
+                Recurring - Annual
+            </h3>
+            <div class="progress-grid">
+                {% for credit in annual_credits %}
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <div class="progress-title">
+                            <div class="credit-name-primary">{{ credit.benefit_name }}</div>
+                            <div class="card-name-secondary">{{ credit.card_name }}</div>
+                        </div>
+                        <div class="progress-amount">{{ credit.credit_amount|currency }}</div>
+                    </div>
+                    <div class="progress-description">
+                        {{ credit.description }}
+                    </div>
+                    {% if credit.has_progress %}
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: {{ credit.progress_percent }}%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>{{ credit.current_amount|currency }} / {{ credit.required_amount|currency }}</span>
+                        <span>{{ credit.progress_percent }}%</span>
+                    </div>
+                    {% endif %}
+                    <div class="progress-deadline">
+                        Resets: {{ credit.reset_date }}
+                    </div>
+                    <div class="credit-actions">
+                        <span class="status-badge {{ credit.status }}">{{ credit.status_text }}</span>
+                        {% if credit.status == 'available' %}
+                        <button class="btn-use-credit" onclick="markCreditAsUsed('annual', '{{ credit.card_name }}', '{{ credit.benefit_name }}')">
+                            Mark as Used
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Semi-Annual Credits Sub-section -->
+        <div class="bonus-category" style="margin-top: 30px;">
+            <h3>
+                <div class="category-icon" style="background: #e83e8c;">📅</div>
+                Recurring - Semi-Annual
+            </h3>
+            <div class="progress-grid">
+                {% for credit in semiannual_credits %}
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <div class="progress-title">
+                            <div class="credit-name-primary">{{ credit.benefit_name }}</div>
+                            <div class="card-name-secondary">{{ credit.card_name }}</div>
+                        </div>
+                        <div class="progress-amount">{{ credit.credit_amount|currency }}</div>
+                    </div>
+                    <div class="progress-description">
+                        {{ credit.description }}
+                    </div>
+                    {% if credit.has_progress %}
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: {{ credit.progress_percent }}%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>{{ credit.current_amount|currency }} / {{ credit.required_amount|currency }}</span>
+                        <span>{{ credit.progress_percent }}%</span>
+                    </div>
+                    {% endif %}
+                    <div class="progress-deadline">
+                        Resets: {{ credit.reset_date }}
+                    </div>
+                    <div class="credit-actions">
+                        <span class="status-badge {{ credit.status }}">{{ credit.status_text }}</span>
+                        {% if credit.status == 'available' %}
+                        <button class="btn-use-credit" onclick="markCreditAsUsed('semi-annual', '{{ credit.card_name }}', '{{ credit.benefit_name }}')">
+                            Mark as Used
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Quarterly Credits Sub-section -->
+        <div class="bonus-category" style="margin-top: 30px;">
+            <h3>
+                <div class="category-icon" style="background: #ffc107; color: #333;">📊</div>
+                Recurring - Quarterly
+            </h3>
+            <div class="progress-grid">
+                {% for credit in quarterly_credits %}
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <div class="progress-title">
+                            <div class="credit-name-primary">{{ credit.benefit_name }}</div>
+                            <div class="card-name-secondary">{{ credit.card_name }}</div>
+                        </div>
+                        <div class="progress-amount">{{ credit.credit_amount|currency }}</div>
+                    </div>
+                    <div class="progress-description">
+                        {{ credit.description }}
+                    </div>
+                    <div class="progress-deadline">
+                        Resets: {{ credit.reset_date }}
+                    </div>
+                    <div class="credit-actions">
+                        <span class="status-badge {{ credit.status }}">{{ credit.status_text }}</span>
+                        {% if credit.status == 'available' %}
+                        <button class="btn-use-credit" onclick="markCreditAsUsed('quarterly', '{{ credit.card_name }}', '{{ credit.benefit_name }}')">
+                            Mark as Used
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Monthly Credits Sub-section -->
+        <div class="bonus-category" style="margin-top: 30px;">
+            <h3>
+                <div class="category-icon" style="background: #17a2b8;">📱</div>
+                Recurring - Monthly
+            </h3>
+            <div class="progress-grid">
+                {% for credit in monthly_credits %}
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <div class="progress-title">
+                            <div class="credit-name-primary">{{ credit.benefit_name }}</div>
+                            <div class="card-name-secondary">{{ credit.card_name }}</div>
+                        </div>
+                        <div class="progress-amount">{{ credit.credit_amount|currency }}</div>
+                    </div>
+                    <div class="progress-description">
+                        {{ credit.description }}
+                    </div>
+                    <div class="progress-deadline">
+                        Resets: {{ credit.reset_date }}
+                    </div>
+                    <div class="credit-actions">
+                        <span class="status-badge {{ credit.status }}">{{ credit.status_text }}</span>
+                        {% if credit.status == 'available' %}
+                        <button class="btn-use-credit" onclick="markCreditAsUsed('monthly', '{{ credit.card_name }}', '{{ credit.benefit_name }}')">
+                            Mark as Used
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- One Time Credits Sub-section -->
+        <div class="bonus-category" style="margin-top: 30px;">
+            <h3>
+                <div class="category-icon" style="background: #6f42c1;">⭐</div>
+                One Time
+            </h3>
+            <div class="progress-grid">
+                {% for credit in onetime_credits %}
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <div class="progress-title">
+                            <div class="credit-name-primary">{{ credit.benefit_name }}</div>
+                            <div class="card-name-secondary">{{ credit.card_name }}</div>
+                        </div>
+                        <div class="progress-amount">{{ credit.credit_amount|currency }}</div>
+                    </div>
+                    <div class="progress-description">
+                        {{ credit.description }}
+                    </div>
+                    <div class="credit-actions">
+                        <span class="status-badge {{ credit.status }}">{{ credit.status_text }}</span>
+                        {% if credit.status == 'available' %}
+                        <button class="btn-use-credit" onclick="markCreditAsUsed('onetime', '{{ credit.card_name }}', '{{ credit.benefit_name }}')">
+                            Mark as Used
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add New Card Modal -->
+<div id="addCardModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New Credit Card</h3>
+            <span class="close" onclick="closeAddCardModal()">&times;</span>
+        </div>
+        <form id="addCardForm" onsubmit="addNewCard(event)">
+            <div class="form-group">
+                <label for="cardVendor">Card Vendor:</label>
+                <select id="cardVendor" name="vendor" class="form-control" required>
+                    <option value="">Select a vendor...</option>
+                    <option value="Chase">Chase</option>
+                    <option value="American Express">American Express</option>
+                    <option value="Capital One">Capital One</option>
+                    <option value="Citi">Citi</option>
+                    <option value="Discover">Discover</option>
+                    <option value="Bank of America">Bank of America</option>
+                    <option value="Wells Fargo">Wells Fargo</option>
+                    <option value="U.S. Bank">U.S. Bank</option>
+                    <option value="Synchrony">Synchrony</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="cardName">Card Name:</label>
+                <input type="text" id="cardName" name="name" class="form-control"
+                       placeholder="e.g., Sapphire Reserve, Gold Card, etc." required>
+            </div>
+            <div class="form-group">
+                <label for="lastFour">Last 4 Digits (Optional):</label>
+                <input type="text" id="lastFour" name="last_four" class="form-control"
+                       placeholder="1234" maxlength="4" pattern="[0-9]{4}">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeAddCardModal()">Cancel</button>
+                <button type="submit" class="btn-primary">Add Card</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function viewCardDetails(cardId) {
+    // Navigate to enhanced card details page
+    window.location.href = `/card_enhanced/${cardId}`;
+}
+
+function scrollCards(direction) {
+    const cardContainer = document.getElementById('cardContainer');
+    const cardWidth = 280 + 15; // card width + gap
+    const scrollAmount = cardWidth * 2; // scroll 2 cards at a time
+
+    if (direction === 'left') {
+        cardContainer.scrollBy({
+            left: -scrollAmount,
+            behavior: 'smooth'
+        });
+    } else {
+        cardContainer.scrollBy({
+            left: scrollAmount,
+            behavior: 'smooth'
+        });
+    }
+
+    // Update button states after scrolling
+    setTimeout(updateScrollButtons, 300);
+}
+
+function updateScrollButtons() {
+    const cardContainer = document.getElementById('cardContainer');
+    const prevButton = document.getElementById('prevButton');
+    const nextButton = document.getElementById('nextButton');
+
+    // Check if at the beginning
+    if (cardContainer.scrollLeft <= 0) {
+        prevButton.style.opacity = '0.5';
+        prevButton.disabled = true;
+    } else {
+        prevButton.style.opacity = '1';
+        prevButton.disabled = false;
+    }
+
+    // Check if at the end
+    const maxScroll = cardContainer.scrollWidth - cardContainer.clientWidth;
+    if (cardContainer.scrollLeft >= maxScroll - 5) { // 5px tolerance
+        nextButton.style.opacity = '0.5';
+        nextButton.disabled = true;
+    } else {
+        nextButton.style.opacity = '1';
+        nextButton.disabled = false;
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const cardContainer = document.getElementById('cardContainer');
+
+    // Initial button state update
+    updateScrollButtons();
+
+    // Update buttons when user scrolls manually
+    cardContainer.addEventListener('scroll', updateScrollButtons);
+
+    // Touch scrolling support
+    let startX = 0;
+    cardContainer.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+    });
+
+    cardContainer.addEventListener('touchmove', function(e) {
+        if (!startX) return;
+
+        const currentX = e.touches[0].clientX;
+        const diffX = startX - currentX;
+
+        cardContainer.scrollLeft += diffX;
+        startX = currentX;
+    });
+
+    cardContainer.addEventListener('touchend', function() {
+        startX = 0;
+        updateScrollButtons();
+    });
+});
+
+// Add New Card Modal Functions
+function openAddCardModal() {
+    document.getElementById('addCardModal').style.display = 'block';
+}
+
+function closeAddCardModal() {
+    document.getElementById('addCardModal').style.display = 'none';
+    document.getElementById('addCardForm').reset();
+}
+
+function addNewCard(event) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const cardData = {
+        vendor: formData.get('vendor'),
+        name: formData.get('name'),
+        last_four: formData.get('last_four') || ''
+    };
+
+    fetch('/add-card', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cardData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Card added successfully!');
+            location.reload(); // Refresh to show new card
+        } else {
+            alert('Error adding card: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error adding card. Please try again.');
+    });
+
+    closeAddCardModal();
+}
+
+// Credit Management Functions
+function markCreditAsUsed(creditType, cardName, creditIdentifier) {
+    const creditData = {
+        type: creditType,
+        card_name: cardName,
+        identifier: creditIdentifier
+    };
+
+    fetch('/mark-credit-used', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(creditData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Credit marked as used!');
+            location.reload(); // Refresh to show updated status
+        } else {
+            alert('Error updating credit: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating credit. Please try again.');
+    });
+}
+
+// Close modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('addCardModal');
+    if (event.target == modal) {
+        closeAddCardModal();
+    }
+}
+</script>
+{% endblock %}

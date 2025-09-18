@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Purchase Helper - Credit Card Tracker{% endblock %}
+
+{% block content %}
+<div class="progress-section">
+    <h2 class="section-title">
+        🛍️ Purchase Helper
+    </h2>
+    <p style="color: #7f8c8d; margin-bottom: 25px;">
+        Enter your purchase details to get the best card recommendation for maximum rewards.
+    </p>
+
+    <form id="purchaseForm" onsubmit="getRecommendation(event)">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+            <div class="form-group">
+                <label for="category">Purchase Category</label>
+                <select id="category" name="category" class="form-control" required>
+                    <option value="">Select category...</option>
+                    <option value="dining">Dining & Restaurants</option>
+                    <option value="travel">Travel & Airlines</option>
+                    <option value="gas">Gas Stations</option>
+                    <option value="grocery">Grocery Stores</option>
+                    <option value="streaming">Streaming Services</option>
+                    <option value="hotels">Hotels</option>
+                    <option value="rideshare">Rideshare & Transit</option>
+                    <option value="foreign">Foreign Purchases</option>
+                    <option value="online">Online Shopping</option>
+                    <option value="other">Everything Else</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Purchase Amount ($)</label>
+                <input type="number" id="amount" name="amount" class="form-control"
+                       placeholder="100.00" step="0.01" min="0" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-primary">
+            Find Best Card 🔍
+        </button>
+    </form>
+
+    <div id="recommendations" class="recommendations" style="display: none;">
+        <h3 style="color: #2c3e50; margin-bottom: 20px;">💡 Recommended Cards</h3>
+        <div id="recommendationsList"></div>
+    </div>
+</div>
+
+<div class="progress-section" style="margin-top: 30px;">
+    <h3 class="section-title">
+        📊 Category Quick Reference
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+        {% for category in quick_reference %}
+        <div class="progress-item">
+            <div class="progress-header">
+                <div class="progress-title">{{ category.name }}</div>
+                <div class="progress-amount">{{ category.best_multiplier }}x</div>
+            </div>
+            <div class="progress-description">
+                Best card: {{ category.best_card }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function getRecommendation(event) {
+    event.preventDefault();
+
+    const category = document.getElementById('category').value;
+    const amount = parseFloat(document.getElementById('amount').value);
+
+    if (!category || !amount) {
+        alert('Please fill in all fields');
+        return;
+    }
+
+    // Show loading state
+    const button = event.target.querySelector('button[type="submit"]');
+    const originalText = button.textContent;
+    button.textContent = 'Finding best card...';
+    button.disabled = true;
+
+    // Simulate API call with sample data
+    setTimeout(() => {
+        const recommendations = getCardRecommendations(category, amount);
+        displayRecommendations(recommendations, amount);
+
+        // Reset button
+        button.textContent = originalText;
+        button.disabled = false;
+    }, 1000);
+}
+
+function getCardRecommendations(category, amount) {
+    // Sample recommendation logic based on your card data
+    const categoryMappings = {
+        'dining': [
+            { card: 'American Express Gold', multiplier: 4, points: amount * 4, description: '4x points on dining' },
+            { card: 'Chase Sapphire Reserve', multiplier: 3, points: amount * 3, description: '3x points on dining' },
+            { card: 'Chase Freedom Unlimited', multiplier: 3, points: amount * 3, description: '3x points on dining' }
+        ],
+        'travel': [
+            { card: 'Chase Sapphire Reserve', multiplier: 8, points: amount * 8, description: '8x points on Chase Travel' },
+            { card: 'Capital One VentureX', multiplier: 10, points: amount * 10, description: '10x miles on hotels/rental cars via Capital One Travel' },
+            { card: 'Chase United Quest', multiplier: 8, points: amount * 8, description: '8x miles on United flights' }
+        ],
+        'gas': [
+            { card: 'Marriott Bonvoy Boundless', multiplier: 3, points: amount * 3, description: '3x points on gas' },
+            { card: 'Chase Freedom Unlimited', multiplier: 1.5, points: amount * 1.5, description: '1.5% cash back on all purchases' }
+        ],
+        'grocery': [
+            { card: 'American Express Gold', multiplier: 4, points: amount * 4, description: '4x points on U.S. supermarkets' },
+            { card: 'Marriott Bonvoy Boundless', multiplier: 3, points: amount * 3, description: '3x points on grocery' },
+            { card: 'Chase Freedom Unlimited', multiplier: 1.5, points: amount * 1.5, description: '1.5% cash back on all purchases' }
+        ],
+        'hotels': [
+            { card: 'Hilton Honors Aspire', multiplier: 14, points: amount * 14, description: '14x points on Hilton hotels' },
+            { card: 'Marriott Bonvoy Boundless', multiplier: 17, points: amount * 17, description: '17x points on Marriott hotels' },
+            { card: 'World of Hyatt', multiplier: 9, points: amount * 9, description: '9x points on Hyatt hotels' }
+        ],
+        'foreign': [
+            { card: 'Atmos Rewards Ascent', multiplier: 3, points: amount * 3, description: '3x points on foreign purchases' },
+            { card: 'Chase Sapphire Reserve', multiplier: 1, points: amount * 1, description: 'No foreign transaction fees' },
+            { card: 'Capital One VentureX', multiplier: 2, points: amount * 2, description: '2x miles, no foreign fees' }
+        ],
+        'streaming': [
+            { card: 'Chase United Quest', multiplier: 2, points: amount * 2, description: '2x miles on streaming services' },
+            { card: 'Chase Freedom Unlimited', multiplier: 1.5, points: amount * 1.5, description: '1.5% cash back on all purchases' }
+        ],
+        'other': [
+            { card: 'Hilton Honors Aspire', multiplier: 3, points: amount * 3, description: '3x points on all other purchases' },
+            { card: 'Capital One VentureX', multiplier: 2, points: amount * 2, description: '2x miles on all purchases' },
+            { card: 'Chase Freedom Unlimited', multiplier: 1.5, points: amount * 1.5, description: '1.5% cash back on all purchases' }
+        ]
+    };
+
+    return categoryMappings[category] || categoryMappings['other'];
+}
+
+function displayRecommendations(recommendations, amount) {
+    const recommendationsDiv = document.getElementById('recommendations');
+    const listDiv = document.getElementById('recommendationsList');
+
+    listDiv.innerHTML = '';
+
+    recommendations.forEach((rec, index) => {
+        const recCard = document.createElement('div');
+        recCard.className = 'recommendation-card';
+        recCard.innerHTML = `
+            <div class="recommendation-header">
+                <div>
+                    <h4 style="color: #2c3e50; margin-bottom: 5px;">${rec.card}</h4>
+                    <p style="color: #7f8c8d; margin: 0;">${rec.description}</p>
+                </div>
+                <div class="recommendation-multiplier">${rec.multiplier}x</div>
+            </div>
+            <div style="margin-top: 15px;">
+                <strong style="color: #28a745;">You'll earn: ${rec.points.toFixed(1)} points/miles</strong>
+            </div>
+        `;
+
+        if (index === 0) {
+            recCard.style.borderColor = '#28a745';
+            recCard.style.borderWidth = '3px';
+        }
+
+        listDiv.appendChild(recCard);
+    });
+
+    recommendationsDiv.style.display = 'block';
+    recommendationsDiv.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+{% endblock %}

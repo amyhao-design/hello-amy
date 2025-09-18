@@ -97,6 +97,4 @@ __pypackages__/
 cython_debug/
 
 # LLMs
-AGENTS.md
 .claude/
-opencode.json
