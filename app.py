@@ -2,6 +2,10 @@
 from flask import Flask, jsonify, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 import datetime
+from dateutil.relativedelta import relativedelta
+from threading import Thread
+import time
+import atexit
 
 # Create our web application instance
 app = Flask(__name__)
@@ -1603,6 +1607,54 @@ def mark_credit_used():
             'error': str(e)
         }), 500
 
+@app.route('/mark-credit-available', methods=['POST'])
+def mark_credit_available():
+    """Mark a credit as available (reverse from used status)"""
+    try:
+        data = request.get_json()
+
+        # Validate required fields
+        required_fields = ['card_name', 'identifier']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({
+                    'success': False,
+                    'error': f'Missing required field: {field}'
+                }), 400
+
+        card_name = data['card_name']
+        identifier = data['identifier']
+
+        # Find the credit status record
+        credit_status = CreditStatus.query.filter_by(
+            card_name=card_name,
+            credit_identifier=identifier
+        ).first()
+
+        if credit_status:
+            # Update existing record to available
+            credit_status.status = 'available'
+            credit_status.last_updated = datetime.datetime.utcnow()
+            db.session.commit()
+
+            return jsonify({
+                'success': True,
+                'message': f'Credit {identifier} for {card_name} marked as available'
+            }), 200
+        else:
+            # No record found - credit was already available
+            return jsonify({
+                'success': True,
+                'message': f'Credit {identifier} for {card_name} was already available'
+            }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 # === HELPER FUNCTIONS FOR NEW UI ===
 
 def get_credit_status(card_name, credit_type, credit_identifier):
@@ -2752,6 +2804,164 @@ def usage_history():
     """Usage history page - you can implement this later"""
     return jsonify({"message": "Usage history page - coming soon!"})
 
+@app.route('/api/reset-credits', methods=['POST'])
+def manual_reset_credits():
+    """Manual endpoint to trigger credit reset (for testing)"""
+    try:
+        reset_expired_credits()
+        return jsonify({
+            'success': True,
+            'message': 'Credit reset check completed'
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# === AUTOMATED CREDIT RESET FUNCTIONALITY ===
+
+def parse_reset_date(reset_date_str):
+    """Parse reset date string into datetime object"""
+    if not reset_date_str:
+        return None
+
+    try:
+        # Handle various date formats
+        formats_to_try = [
+            "%B %d, %Y",      # "December 31, 2025"
+            "%b %d, %Y",      # "Dec 31, 2025"
+            "%Y-%m-%d",       # "2025-12-31"
+            "%m/%d/%Y",       # "12/31/2025"
+        ]
+
+        for format_str in formats_to_try:
+            try:
+                return datetime.datetime.strptime(reset_date_str, format_str).date()
+            except ValueError:
+                continue
+
+        print(f"Warning: Could not parse reset date: {reset_date_str}")
+        return None
+    except Exception as e:
+        print(f"Error parsing reset date {reset_date_str}: {e}")
+        return None
+
+def calculate_next_reset_date(current_reset_date, frequency):
+    """Calculate the next reset date based on frequency"""
+    if not current_reset_date:
+        return None
+
+    try:
+        if frequency == 'monthly':
+            return current_reset_date + relativedelta(months=1)
+        elif frequency == 'quarterly':
+            return current_reset_date + relativedelta(months=3)
+        elif frequency == 'semi-annual':
+            return current_reset_date + relativedelta(months=6)
+        elif frequency == 'annual':
+            return current_reset_date + relativedelta(years=1)
+        else:
+            # For onetime credits, don't reset
+            return current_reset_date
+    except Exception as e:
+        print(f"Error calculating next reset date for {current_reset_date}, frequency {frequency}: {e}")
+        return None
+
+def format_reset_date(date_obj):
+    """Format date object back to string format"""
+    if not date_obj:
+        return None
+    try:
+        return date_obj.strftime("%B %d, %Y")
+    except Exception as e:
+        print(f"Error formatting date {date_obj}: {e}")
+        return None
+
+def reset_expired_credits():
+    """Reset credits that have passed their reset date"""
+    today = datetime.date.today()
+    reset_count = 0
+
+    try:
+        with app.app_context():
+            # Get all credits from the database
+            credits = CreditBenefit2.query.all()
+
+            for credit in credits:
+                if not credit.reset_date:
+                    continue
+
+                # Parse the current reset date
+                current_reset_date = parse_reset_date(credit.reset_date)
+                if not current_reset_date:
+                    continue
+
+                # Check if reset date has passed
+                if current_reset_date < today:
+                    print(f"Resetting credit: {credit.benefit_name} for {credit.card_name}")
+
+                    # Reset used credits to available
+                    used_credit_statuses = CreditStatus.query.filter_by(
+                        card_name=credit.card_name,
+                        credit_identifier=credit.benefit_name,
+                        status='used'
+                    ).all()
+
+                    for status in used_credit_statuses:
+                        status.status = 'available'
+                        status.last_updated = datetime.datetime.utcnow()
+                        print(f"  → Marked {credit.benefit_name} as available")
+
+                    # Calculate new reset date (skip one-time credits)
+                    if credit.frequency.lower() != 'onetime':
+                        new_reset_date = calculate_next_reset_date(current_reset_date, credit.frequency.lower())
+                        if new_reset_date:
+                            credit.reset_date = format_reset_date(new_reset_date)
+                            print(f"  → Updated reset date to {credit.reset_date}")
+
+                    reset_count += 1
+
+            if reset_count > 0:
+                db.session.commit()
+                print(f"Successfully reset {reset_count} credits")
+            else:
+                print("No credits needed resetting")
+
+    except Exception as e:
+        print(f"Error in reset_expired_credits: {e}")
+        db.session.rollback()
+
+def run_reset_scheduler():
+    """Background thread to check for credit resets daily at midnight"""
+    def scheduler_loop():
+        while not getattr(scheduler_loop, 'stop', False):
+            try:
+                now = datetime.datetime.now()
+                # Check if it's midnight (within a 1-minute window)
+                if now.hour == 0 and now.minute == 0:
+                    print(f"Running daily credit reset check at {now}")
+                    reset_expired_credits()
+                    # Sleep for 60 seconds to avoid running multiple times in the same minute
+                    time.sleep(60)
+                else:
+                    # Check every 30 seconds
+                    time.sleep(30)
+            except Exception as e:
+                print(f"Error in scheduler loop: {e}")
+                time.sleep(60)  # Wait a minute before retrying
+
+    # Start the scheduler thread
+    scheduler_thread = Thread(target=scheduler_loop, daemon=True)
+    scheduler_thread.start()
+
+    # Register cleanup function
+    def stop_scheduler():
+        scheduler_loop.stop = True
+    atexit.register(stop_scheduler)
+
+    print("Credit reset scheduler started - will check daily at midnight")
+
 # This special block runs only when we run this file directly
 # (not when it's imported by another file)
 if __name__ == '__main__':
@@ -2763,6 +2973,9 @@ if __name__ == '__main__':
 
     # Initialize enhanced database with real functional data
     initialize_enhanced_data()
+
+    # Start the automated credit reset scheduler
+    run_reset_scheduler()
 
     # Finally, start our web application in debug mode
     # Debug mode helps us see errors more clearly while learning

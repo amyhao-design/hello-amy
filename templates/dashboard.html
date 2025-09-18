@@ -654,6 +654,9 @@ function displayUsedCredits(credits) {
         html += `
                 <div class="credit-actions">
                     <span class="status-badge used">Used</span>
+                    <button class="btn-mark-available" onclick="markCreditAsAvailable('${credit.card_name}', '${credit.benefit_name}')">
+                        Mark as Available
+                    </button>
                 </div>
             </div>`;
     });
@@ -663,6 +666,40 @@ function displayUsedCredits(credits) {
 
 function closeUsedCreditsModal() {
     document.getElementById('usedCreditsModal').style.display = 'none';
+}
+
+function markCreditAsAvailable(cardName, creditIdentifier) {
+    if (!confirm(`Are you sure you want to mark "${creditIdentifier}" as available? This will make it appear in the main credits section again.`)) {
+        return;
+    }
+
+    const creditData = {
+        card_name: cardName,
+        identifier: creditIdentifier
+    };
+
+    fetch('/mark-credit-available', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(creditData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Credit marked as available!');
+            // Close the modal and refresh the page to show updated status
+            closeUsedCreditsModal();
+            location.reload();
+        } else {
+            alert('Error updating credit: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating credit. Please try again.');
+    });
 }
 </script>
 {% endblock %}
