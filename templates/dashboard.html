@@ -92,7 +92,7 @@
                 <div class="progress-item">
                     <div class="progress-header">
                         <div class="progress-title">{{ bonus.card_name }} - {{ bonus.category }}</div>
-                        <div class="progress-amount">{{ bonus.multiplier }}x</div>
+                        <div class="progress-amount">{{ bonus.multiplier }}</div>
                     </div>
                     <div class="progress-description">
                         {{ bonus.description }}
@@ -126,6 +126,11 @@
             <h3>
                 <div class="category-icon" style="background: #dc3545;">📅</div>
                 Recurring - Annual
+                {% if used_annual_credits %}
+                <button class="btn-view-used" onclick="toggleUsedCredits('annual')" id="btn-annual">
+                    View Used Credits ({{ used_annual_credits|length }})
+                </button>
+                {% endif %}
             </h3>
             <div class="progress-grid">
                 {% for credit in annual_credits %}
@@ -163,6 +168,41 @@
                 </div>
                 {% endfor %}
             </div>
+
+            <!-- Used Annual Credits (hidden by default) -->
+            {% if used_annual_credits %}
+            <div class="progress-grid" id="used-annual-credits" style="display: none; margin-top: 20px; opacity: 0.7;">
+                {% for credit in used_annual_credits %}
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <div class="progress-title">
+                            <div class="credit-name-primary">{{ credit.benefit_name }}</div>
+                            <div class="card-name-secondary">{{ credit.card_name }}</div>
+                        </div>
+                        <div class="progress-amount">{{ credit.credit_amount|currency }}</div>
+                    </div>
+                    <div class="progress-description">
+                        {{ credit.description }}
+                    </div>
+                    {% if credit.has_progress %}
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: {{ credit.progress_percent }}%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>{{ credit.current_amount|currency }} / {{ credit.required_amount|currency }}</span>
+                        <span>{{ credit.progress_percent }}%</span>
+                    </div>
+                    {% endif %}
+                    <div class="progress-deadline">
+                        Resets: {{ credit.reset_date }}
+                    </div>
+                    <div class="credit-actions">
+                        <span class="status-badge used">Used</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
 
         <!-- Semi-Annual Credits Sub-section -->
@@ -170,6 +210,11 @@
             <h3>
                 <div class="category-icon" style="background: #e83e8c;">📅</div>
                 Recurring - Semi-Annual
+                {% if used_semiannual_credits %}
+                <button class="btn-view-used" onclick="toggleUsedCredits('semiannual')" id="btn-semiannual">
+                    View Used Credits ({{ used_semiannual_credits|length }})
+                </button>
+                {% endif %}
             </h3>
             <div class="progress-grid">
                 {% for credit in semiannual_credits %}
@@ -214,6 +259,11 @@
             <h3>
                 <div class="category-icon" style="background: #ffc107; color: #333;">📊</div>
                 Recurring - Quarterly
+                {% if used_quarterly_credits %}
+                <button class="btn-view-used" onclick="toggleUsedCredits('quarterly')" id="btn-quarterly">
+                    View Used Credits ({{ used_quarterly_credits|length }})
+                </button>
+                {% endif %}
             </h3>
             <div class="progress-grid">
                 {% for credit in quarterly_credits %}
@@ -249,6 +299,11 @@
             <h3>
                 <div class="category-icon" style="background: #17a2b8;">📱</div>
                 Recurring - Monthly
+                {% if used_monthly_credits %}
+                <button class="btn-view-used" onclick="toggleUsedCredits('monthly')" id="btn-monthly">
+                    View Used Credits ({{ used_monthly_credits|length }})
+                </button>
+                {% endif %}
             </h3>
             <div class="progress-grid">
                 {% for credit in monthly_credits %}
@@ -520,6 +575,19 @@ window.onclick = function(event) {
     const modal = document.getElementById('addCardModal');
     if (event.target == modal) {
         closeAddCardModal();
+    }
+}
+
+function toggleUsedCredits(frequency) {
+    const usedCreditsDiv = document.getElementById(`used-${frequency}-credits`);
+    const button = document.getElementById(`btn-${frequency}`);
+
+    if (usedCreditsDiv.style.display === 'none') {
+        usedCreditsDiv.style.display = 'grid';
+        button.textContent = button.textContent.replace('View', 'Hide');
+    } else {
+        usedCreditsDiv.style.display = 'none';
+        button.textContent = button.textContent.replace('Hide', 'View');
     }
 }
 </script>

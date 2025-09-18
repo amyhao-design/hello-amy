@@ -1156,6 +1156,13 @@ def dashboard():
         quarterly_credits = get_real_credits_by_frequency('quarterly')
         monthly_credits = get_real_credits_by_frequency('monthly')
         onetime_credits = get_real_credits_by_frequency('onetime')
+
+        # Get used credits for each frequency
+        used_annual_credits = get_used_credits_by_frequency('annual')
+        used_semiannual_credits = get_used_credits_by_frequency('semi-annual')
+        used_quarterly_credits = get_used_credits_by_frequency('quarterly')
+        used_monthly_credits = get_used_credits_by_frequency('monthly')
+        used_onetime_credits = get_used_credits_by_frequency('onetime')
     else:
         # Fallback to sample data if enhanced data not available
         cards = get_all_cards()
@@ -1182,6 +1189,13 @@ def dashboard():
         monthly_credits = get_sample_monthly_credits()
         onetime_credits = get_sample_onetime_credits()
 
+        # No used credits in sample data
+        used_annual_credits = []
+        used_semiannual_credits = []
+        used_quarterly_credits = []
+        used_monthly_credits = []
+        used_onetime_credits = []
+
     return render_template('dashboard.html',
                          cards=cards,
                          signup_bonuses=signup_bonuses,
@@ -1190,7 +1204,12 @@ def dashboard():
                          semiannual_credits=semiannual_credits,
                          quarterly_credits=quarterly_credits,
                          monthly_credits=monthly_credits,
-                         onetime_credits=onetime_credits)
+                         onetime_credits=onetime_credits,
+                         used_annual_credits=used_annual_credits,
+                         used_semiannual_credits=used_semiannual_credits,
+                         used_quarterly_credits=used_quarterly_credits,
+                         used_monthly_credits=used_monthly_credits,
+                         used_onetime_credits=used_onetime_credits)
 
 @app.route('/cards')
 def list_cards():
@@ -2409,16 +2428,91 @@ def get_real_signup_bonuses():
     return sorted(result, key=lambda x: parse_bonus_amount(x['bonus_amount']), reverse=True)
 
 def get_real_spending_bonuses():
-    """Get spending bonuses from database - DISABLED FOR HOMEPAGE (multipliers removed per user request)"""
-    # Return empty list to hide multipliers from homepage
-    return []
+    """Get threshold bonuses from database for homepage (replaces multipliers per user request)"""
+    # Return threshold bonuses from other_bonus table for homepage
+    bonuses = OtherBonus.query.filter_by(bonus_type='threshold').all()
+    result = []
+
+    for bonus in bonuses:
+        # Only show threshold bonuses with meaningful spending requirements
+        if bonus.required_spend and bonus.required_spend > 0:
+            # Format the bonus amount properly - no extra 'x' and handle points vs dollars
+            bonus_amount = bonus.bonus_amount
+
+            # If it contains 'points' or is just a number followed by text, don't add dollar sign
+            if 'points' in bonus_amount.lower() or 'status' in bonus_amount.lower() or 'night' in bonus_amount.lower() or 'upgrade' in bonus_amount.lower() or 'credit' in bonus_amount.lower():
+                formatted_amount = bonus_amount  # Keep as-is for points, status, nights, upgrades, credits
+            elif bonus_amount.startswith('$'):
+                formatted_amount = bonus_amount  # Already has dollar sign
+            else:
+                # Only add dollar sign if it's clearly a dollar amount (number only)
+                try:
+                    float(bonus_amount.replace(',', ''))
+                    formatted_amount = f"${bonus_amount}"
+                except ValueError:
+                    formatted_amount = bonus_amount  # Keep as-is if can't parse as number
+
+            bonus_data = {
+                'card_name': bonus.card.name,
+                'category': bonus.description,
+                'multiplier': formatted_amount,  # This will NOT go through |multiplier filter
+                'description': f"{bonus_amount} after ${bonus.required_spend:,.0f} annual spend",
+                'cap_amount': bonus.required_spend,
+                'current_spend': 0,  # Default to 0 for now
+                'progress_percent': 0,  # Default to 0 for now
+                'reset_date': 'December 31',  # Default annual reset
+                'status': 'pending',
+                'status_text': 'Pending'
+            }
+            result.append(bonus_data)
+
+    return result
 
 def get_real_credits_by_frequency(frequency):
-    """Get credits by frequency from database"""
+    """Get available (non-used) credits by frequency from database"""
     credits = CreditBenefit2.query.filter_by(frequency=frequency).all()
     result = []
 
     for credit in credits:
+        # Skip credits that are marked as 'used'
+        if credit.credit_status == 'used':
+            continue
+
+        credit_data = {
+            'card_name': credit.card.name,
+            'credit_amount': credit.credit_amount,
+            'description': credit.description,
+            'status': credit.credit_status,
+            'status_text': credit.status_text
+        }
+
+        if credit.benefit_name:
+            credit_data['benefit_name'] = credit.benefit_name
+        if credit.category:
+            credit_data['category'] = credit.category
+        if credit.reset_date:
+            credit_data['reset_date'] = credit.reset_date.strftime('%B %d, %Y')
+        if credit.has_progress:
+            credit_data['has_progress'] = True
+            credit_data['required_amount'] = credit.required_amount
+            credit_data['current_amount'] = credit.current_amount
+            credit_data['progress_percent'] = credit.progress_percent
+
+        result.append(credit_data)
+
+    # Sort by credit amount from highest to lowest
+    return sorted(result, key=lambda x: float(str(x['credit_amount']).replace('$', '').replace(',', '')), reverse=True)
+
+def get_used_credits_by_frequency(frequency):
+    """Get used credits by frequency from database"""
+    credits = CreditBenefit2.query.filter_by(frequency=frequency).all()
+    result = []
+
+    for credit in credits:
+        # Only include credits that are marked as 'used'
+        if credit.credit_status != 'used':
+            continue
+
         credit_data = {
             'card_name': credit.card.name,
             'credit_amount': credit.credit_amount,
