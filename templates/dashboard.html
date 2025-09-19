@@ -50,8 +50,13 @@
         <!-- Signup Bonuses Sub-section -->
         <div class="bonus-category">
             <h3>
-                <div class="category-icon" style="background: #28a745;">🚀</div>
-                Signup Bonuses
+                <div>
+                    <div class="category-icon" style="background: #28a745;">🚀</div>
+                    Signup Bonuses
+                </div>
+                <button class="btn-used-credits" onclick="toggleCompletedBonuses()" id="btn-completed-bonuses">
+                    Completed bonuses
+                </button>
             </h3>
             <div class="progress-grid">
                 {% for bonus in signup_bonuses %}
@@ -75,7 +80,14 @@
                         Deadline: {{ bonus.deadline }}
                     </div>
                     {% endif %}
-                    <span class="status-badge {{ bonus.status }}">{{ bonus.status_text }}</span>
+                    <div class="credit-actions">
+                        <span class="status-badge {{ bonus.status }}">{{ bonus.status_text }}</span>
+                        {% if bonus.status != 'completed' %}
+                        <button class="btn-use-credit" onclick="markSignupBonusAsComplete('{{ bonus.card_name }}', '{{ bonus.description }}')">
+                            Mark as Complete
+                        </button>
+                        {% endif %}
+                    </div>
                 </div>
                 {% endfor %}
             </div>
@@ -399,6 +411,21 @@
         </div>
     </div>
 </div>
+
+<!-- Completed Bonuses Modal -->
+<div id="completedBonusesModal" class="modal">
+    <div class="modal-content used-credits-modal-content">
+        <div class="modal-header">
+            <h3 id="completedBonusesModalTitle">Completed Signup Bonuses</h3>
+            <span class="close" onclick="closeCompletedBonusesModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="completedBonusesContent" class="progress-grid">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -560,15 +587,51 @@ function markCreditAsUsed(creditType, cardName, creditIdentifier) {
     });
 }
 
+// Signup Bonus Management Functions
+function markSignupBonusAsComplete(cardName, description) {
+    if (!confirm(`Are you sure you want to mark the signup bonus for "${cardName}" as complete?`)) {
+        return;
+    }
+
+    const bonusData = {
+        card_name: cardName,
+        description: description
+    };
+
+    fetch('/mark-signup-bonus-complete', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bonusData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Signup bonus marked as complete!');
+            location.reload(); // Refresh to show updated status
+        } else {
+            alert('Error updating signup bonus: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating signup bonus. Please try again.');
+    });
+}
+
 // Close modal when clicking outside of it
 window.onclick = function(event) {
     const addCardModal = document.getElementById('addCardModal');
     const usedCreditsModal = document.getElementById('usedCreditsModal');
+    const completedBonusesModal = document.getElementById('completedBonusesModal');
 
     if (event.target == addCardModal) {
         closeAddCardModal();
     } else if (event.target == usedCreditsModal) {
         closeUsedCreditsModal();
+    } else if (event.target == completedBonusesModal) {
+        closeCompletedBonusesModal();
     }
 }
 
@@ -666,6 +729,106 @@ function displayUsedCredits(credits) {
 
 function closeUsedCreditsModal() {
     document.getElementById('usedCreditsModal').style.display = 'none';
+}
+
+// Completed Bonuses Modal Functions
+function toggleCompletedBonuses() {
+    openCompletedBonusesModal();
+}
+
+function openCompletedBonusesModal() {
+    const modal = document.getElementById('completedBonusesModal');
+    const modalContent = document.getElementById('completedBonusesContent');
+
+    // Show loading state
+    modalContent.innerHTML = '<div style="text-align: center; padding: 40px; color: #7f8c8d;">Loading completed bonuses...</div>';
+    modal.style.display = 'block';
+
+    // Fetch completed bonuses data
+    fetch('/api/completed-bonuses')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const bonuses = data.bonuses;
+
+                if (bonuses.length === 0) {
+                    modalContent.innerHTML = '<div class="no-used-credits">No completed signup bonuses yet!</div>';
+                } else {
+                    let html = '';
+                    bonuses.forEach(bonus => {
+                        html += `
+                            <div class="progress-item">
+                                <div class="progress-header">
+                                    <div class="progress-title">
+                                        <div class="credit-name-primary">${bonus.bonus_amount}</div>
+                                        <div class="card-name-secondary">${bonus.card_name}</div>
+                                    </div>
+                                    <div class="progress-amount">${bonus.bonus_amount}</div>
+                                </div>
+                                <div class="progress-description">
+                                    ${bonus.description}
+                                </div>
+                                <div class="progress-text">
+                                    <span>${bonus.current_spend || 0} / ${bonus.required_spend || 0}</span>
+                                    <span>100%</span>
+                                </div>
+                                <div class="credit-actions">
+                                    <span class="status-badge completed">Completed</span>
+                                    <button class="btn-mark-available" onclick="markBonusAsIncomplete('${bonus.card_name}', '${bonus.description}')">
+                                        Mark as Incomplete
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    modalContent.innerHTML = html;
+                }
+            } else {
+                modalContent.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc3545;">Error loading completed bonuses</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            modalContent.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc3545;">Error loading completed bonuses</div>';
+        });
+}
+
+function closeCompletedBonusesModal() {
+    document.getElementById('completedBonusesModal').style.display = 'none';
+}
+
+function markBonusAsIncomplete(cardName, description) {
+    if (!confirm(`Are you sure you want to mark the signup bonus for "${cardName}" as incomplete? This will make it appear in the main bonuses section again.`)) {
+        return;
+    }
+
+    const bonusData = {
+        card_name: cardName,
+        description: description
+    };
+
+    fetch('/mark-signup-bonus-incomplete', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bonusData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Signup bonus marked as incomplete!');
+            // Close the modal and refresh the page to show updated status
+            closeCompletedBonusesModal();
+            location.reload();
+        } else {
+            alert('Error updating signup bonus: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating signup bonus. Please try again.');
+    });
 }
 
 function markCreditAsAvailable(cardName, creditIdentifier) {

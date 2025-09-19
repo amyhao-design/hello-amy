@@ -348,13 +348,13 @@ body {
 .card-name {
     font-style: italic;
     font-size: 0.9em;
-    color: #7f8c8d;
+    color: white;
     font-weight: 500;
 }
 
 .card-name-secondary {
     font-size: 0.85em;
-    color: #7f8c8d;
+    color: white;
     font-weight: 400;
     font-style: normal;
     line-height: 1.2;
@@ -424,7 +424,7 @@ body {
     margin-bottom: 15px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 10px;
 }
 

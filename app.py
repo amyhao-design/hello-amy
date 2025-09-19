@@ -1607,6 +1607,136 @@ def mark_credit_used():
             'error': str(e)
         }), 500
 
+@app.route('/mark-signup-bonus-complete', methods=['POST'])
+def mark_signup_bonus_complete():
+    """Mark a signup bonus as complete"""
+    try:
+        data = request.get_json()
+
+        # Validate required fields
+        required_fields = ['card_name', 'description']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({
+                    'success': False,
+                    'error': f'Missing required field: {field}'
+                }), 400
+
+        card_name = data['card_name']
+        description = data['description']
+
+        # Find the card first
+        card = CardEnhanced.query.filter_by(name=card_name).first()
+        if not card:
+            return jsonify({
+                'success': False,
+                'error': f'Card not found: {card_name}'
+            }), 404
+
+        # Find the signup bonus
+        signup_bonus = SignupBonus.query.filter_by(
+            card_id=card.id,
+            description=description
+        ).first()
+
+        if not signup_bonus:
+            return jsonify({
+                'success': False,
+                'error': f'Signup bonus not found for {card_name}'
+            }), 404
+
+        # Update the status to completed
+        signup_bonus.status = 'completed'
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f'Signup bonus for {card_name} marked as complete'
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/completed-bonuses', methods=['GET'])
+def get_completed_bonuses():
+    """Get all completed signup bonuses"""
+    try:
+        completed_bonuses = get_completed_signup_bonuses()
+
+        return jsonify({
+            'success': True,
+            'bonuses': completed_bonuses
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/mark-signup-bonus-incomplete', methods=['POST'])
+def mark_signup_bonus_incomplete():
+    """Mark a signup bonus as incomplete (reverse from completed status)"""
+    try:
+        data = request.get_json()
+
+        # Validate required fields
+        required_fields = ['card_name', 'description']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({
+                    'success': False,
+                    'error': f'Missing required field: {field}'
+                }), 400
+
+        card_name = data['card_name']
+        description = data['description']
+
+        # Find the card first
+        card = CardEnhanced.query.filter_by(name=card_name).first()
+        if not card:
+            return jsonify({
+                'success': False,
+                'error': f'Card not found: {card_name}'
+            }), 404
+
+        # Find the signup bonus
+        signup_bonus = SignupBonus.query.filter_by(
+            card_id=card.id,
+            description=description
+        ).first()
+
+        if not signup_bonus:
+            return jsonify({
+                'success': False,
+                'error': f'Signup bonus not found for {card_name}'
+            }), 404
+
+        # Update the status back to in-progress or not-started
+        # If they have some progress, mark as in-progress, otherwise not-started
+        if signup_bonus.current_spend > 0:
+            signup_bonus.status = 'in-progress'
+        else:
+            signup_bonus.status = 'not-started'
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f'Signup bonus for {card_name} marked as incomplete'
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 @app.route('/mark-credit-available', methods=['POST'])
 def mark_credit_available():
     """Mark a credit as available (reverse from used status)"""
@@ -2507,8 +2637,8 @@ def initialize_enhanced_data():
         print("Enhanced sample data created successfully!")
 
 def get_real_signup_bonuses():
-    """Get signup bonuses from database"""
-    bonuses = SignupBonus.query.all()
+    """Get signup bonuses from database (excluding completed ones)"""
+    bonuses = SignupBonus.query.filter(SignupBonus.status != 'completed').all()
     result = [{
         'card_name': bonus.card.name,
         'bonus_amount': bonus.bonus_amount,
@@ -2530,6 +2660,32 @@ def get_real_signup_bonuses():
         numbers = re.findall(r'\d+', clean_str)
         return float(numbers[0]) if numbers else 0.0
     
+    return sorted(result, key=lambda x: parse_bonus_amount(x['bonus_amount']), reverse=True)
+
+def get_completed_signup_bonuses():
+    """Get completed signup bonuses from database"""
+    bonuses = SignupBonus.query.filter(SignupBonus.status == 'completed').all()
+    result = [{
+        'card_name': bonus.card.name,
+        'bonus_amount': bonus.bonus_amount,
+        'description': bonus.description,
+        'required_spend': bonus.required_spend,
+        'current_spend': bonus.current_spend,
+        'progress_percent': bonus.progress_percent,
+        'deadline': bonus.deadline.strftime('%B %d, %Y') if bonus.deadline else None,
+        'status': bonus.status,
+        'status_text': bonus.status_text
+    } for bonus in bonuses]
+
+    # Sort by bonus amount from highest to lowest
+    def parse_bonus_amount(amount_str):
+        """Parse bonus amount string to extract numeric value for sorting"""
+        clean_str = str(amount_str).replace('$', '').replace(',', '').lower()
+        # Extract just the numeric part by removing text like 'points', 'miles', etc.
+        import re
+        numbers = re.findall(r'\d+', clean_str)
+        return float(numbers[0]) if numbers else 0.0
+
     return sorted(result, key=lambda x: parse_bonus_amount(x['bonus_amount']), reverse=True)
 
 def get_real_spending_bonuses():
