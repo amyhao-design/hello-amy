@@ -119,7 +119,14 @@
                     <div class="progress-deadline">
                         Resets: {{ bonus.reset_date }}
                     </div>
-                    <span class="status-badge {{ bonus.status }}">{{ bonus.status_text }}</span>
+                    <div class="credit-actions">
+                        <span class="status-badge {{ bonus.status }}">{{ bonus.status_text }}</span>
+                        {% if bonus.status != 'completed' %}
+                        <button class="btn-use-credit" onclick="markSpendingBonusAsComplete('{{ bonus.card_name }}', '{{ bonus.category }}', '{{ bonus.multiplier }}')">
+                            Mark as Complete
+                        </button>
+                        {% endif %}
+                    </div>
                 </div>
                 {% endfor %}
             </div>
@@ -171,11 +178,18 @@
                     </div>
                     <div class="credit-actions">
                         <span class="status-badge {{ credit.status }}">{{ credit.status_text }}</span>
-                        {% if credit.status == 'available' %}
-                        <button class="btn-use-credit" onclick="markCreditAsUsed('annual', '{{ credit.card_name }}', '{{ credit.benefit_name }}')">
-                            Mark as Used
-                        </button>
-                        {% endif %}
+                        <div class="credit-buttons">
+                            {% if credit.status == 'available' %}
+                            <button class="btn-use-credit" onclick="markCreditAsUsed('annual', '{{ credit.card_name }}', '{{ credit.benefit_name }}')">
+                                Mark as Used
+                            </button>
+                            {% endif %}
+                            {% if credit.from_spending_bonus %}
+                            <button class="btn-undo-bonus" onclick="undoBonusCompletion('{{ credit.card_name }}', '{{ credit.benefit_name }}', {{ credit.spending_bonus_id }})">
+                                Undo bonus completion
+                            </button>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -862,6 +876,74 @@ function markCreditAsAvailable(cardName, creditIdentifier) {
     .catch(error => {
         console.error('Error:', error);
         alert('Error updating credit. Please try again.');
+    });
+}
+
+// Spending Bonus Management Functions
+function markSpendingBonusAsComplete(cardName, category, multiplier) {
+    if (!confirm(`Are you sure you want to mark the spending bonus "${category}" for "${cardName}" as complete? This will move the reward "${multiplier}" to your annual credits.`)) {
+        return;
+    }
+
+    const bonusData = {
+        card_name: cardName,
+        category: category,
+        multiplier: multiplier
+    };
+
+    fetch('/mark-spending-bonus-complete', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bonusData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Spending bonus marked as complete! The reward has been added to your annual credits.');
+            location.reload(); // Refresh to show updated status
+        } else {
+            alert('Error completing spending bonus: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error completing spending bonus. Please try again.');
+    });
+}
+
+// Undo Bonus Completion Function
+function undoBonusCompletion(cardName, benefitName, spendingBonusId) {
+    if (!confirm(`Are you sure you want to undo the bonus completion for "${benefitName}"? This will remove the credit and restore the original spending bonus.`)) {
+        return;
+    }
+
+    const undoData = {
+        card_name: cardName,
+        benefit_name: benefitName,
+        spending_bonus_id: spendingBonusId
+    };
+
+    fetch('/undo-bonus-completion', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(undoData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Bonus completion undone successfully! The spending bonus has been restored.');
+            location.reload(); // Refresh to show updated status
+        } else {
+            alert('Error undoing bonus completion: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error undoing bonus completion. Please try again.');
     });
 }
 </script>

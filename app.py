@@ -197,6 +197,9 @@ class CreditBenefit2(db.Model):
     has_progress = db.Column(db.Boolean, default=False)  # Whether to show progress bar
     required_amount = db.Column(db.Float, nullable=True)  # If progress tracking needed
     current_amount = db.Column(db.Float, default=0.0)  # Current progress
+    original_multiplier = db.Column(db.String(50), nullable=True)  # Original format like "1 night", "2 credits"
+    from_spending_bonus = db.Column(db.Boolean, default=False)  # True if created from spending bonus completion
+    spending_bonus_id = db.Column(db.Integer, nullable=True)  # Reference to original spending bonus for undo
 
     # Link to CreditStatus for usage tracking
     @property
@@ -230,7 +233,18 @@ class OtherBonus(db.Model):
     description = db.Column(db.String(200), nullable=False)
     required_spend = db.Column(db.Float, nullable=True)  # Spending threshold if applicable
     frequency = db.Column(db.String(20), nullable=False)  # 'annual', 'ongoing', etc.
+    status = db.Column(db.String(20), default='pending')  # pending, completed, expired
+    completed_date = db.Column(db.DateTime, nullable=True)  # When bonus was completed
     created_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+
+    @property
+    def status_text(self):
+        status_map = {
+            'pending': 'Pending',
+            'completed': 'Completed',
+            'expired': 'Expired'
+        }
+        return status_map.get(self.status, 'Unknown')
 
 # Update Card model to include missing fields
 class CardEnhanced(db.Model):
@@ -1661,6 +1675,171 @@ def mark_signup_bonus_complete():
             'error': str(e)
         }), 500
 
+@app.route('/mark-spending-bonus-complete', methods=['POST'])
+def mark_spending_bonus_complete():
+    """Mark a spending bonus as complete and convert it to an annual credit"""
+    try:
+        data = request.get_json()
+
+        # Validate required fields
+        required_fields = ['card_name', 'category', 'multiplier']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({
+                    'success': False,
+                    'error': f'Missing required field: {field}'
+                }), 400
+
+        card_name = data['card_name']
+        category = data['category']
+        multiplier = data['multiplier']
+
+        # Find the card first
+        card = CardEnhanced.query.filter_by(name=card_name).first()
+        if not card:
+            return jsonify({
+                'success': False,
+                'error': f'Card not found: {card_name}'
+            }), 404
+
+        # Find the spending bonus (from other_bonus table)
+        spending_bonus = OtherBonus.query.filter_by(
+            card_id=card.id,
+            bonus_type='threshold',
+            description=category,
+            status='pending'
+        ).first()
+
+        if not spending_bonus:
+            return jsonify({
+                'success': False,
+                'error': f'Spending bonus not found for {card_name}: {category}'
+            }), 404
+
+        # Update the spending bonus status to completed
+        spending_bonus.status = 'completed'
+        spending_bonus.completed_date = datetime.datetime.utcnow()
+
+        # Create a new annual credit based on the spending bonus reward
+        # Calculate expiry date: 1 year from completion date
+        expiry_date = datetime.datetime.utcnow() + relativedelta(years=1)
+
+        # Create the credit benefit
+        credit_benefit = CreditBenefit2(
+            card_id=card.id,
+            benefit_name=f"{category} Reward",
+            credit_amount=1,  # Set to 1 as placeholder, display will use original_multiplier
+            description=f"Earned from completing: {category} ({card_name})",
+            frequency='annual',
+            reset_date=expiry_date.date(),
+            has_progress=False,
+            original_multiplier=multiplier,  # Store original format like "1 night", "2 credits"
+            from_spending_bonus=True,  # Mark this as coming from spending bonus
+            spending_bonus_id=spending_bonus.id  # Reference for undo functionality
+        )
+
+        # Save both changes
+        db.session.add(credit_benefit)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f'Spending bonus for {card_name} marked as complete and {multiplier} added to annual credits (expires {expiry_date.strftime("%B %d, %Y")})'
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/undo-bonus-completion', methods=['POST'])
+def undo_bonus_completion():
+    """Undo a spending bonus completion by removing the credit and restoring the original bonus"""
+    try:
+        data = request.get_json()
+
+        # Validate required fields
+        required_fields = ['card_name', 'benefit_name', 'spending_bonus_id']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({
+                    'success': False,
+                    'error': f'Missing required field: {field}'
+                }), 400
+
+        card_name = data['card_name']
+        benefit_name = data['benefit_name']
+        spending_bonus_id = data['spending_bonus_id']
+
+        # Find the card
+        card = CardEnhanced.query.filter_by(name=card_name).first()
+        if not card:
+            return jsonify({
+                'success': False,
+                'error': f'Card not found: {card_name}'
+            }), 404
+
+        # Find the credit benefit that was created from spending bonus
+        credit_benefit = CreditBenefit2.query.filter_by(
+            card_id=card.id,
+            benefit_name=benefit_name,
+            from_spending_bonus=True,
+            spending_bonus_id=spending_bonus_id
+        ).first()
+
+        if not credit_benefit:
+            return jsonify({
+                'success': False,
+                'error': f'Credit benefit not found: {benefit_name} for {card_name}'
+            }), 404
+
+        # Find the completed spending bonus
+        spending_bonus = OtherBonus.query.get(spending_bonus_id)
+        if not spending_bonus:
+            return jsonify({
+                'success': False,
+                'error': f'Original spending bonus not found (ID: {spending_bonus_id})'
+            }), 404
+
+        # Remove the credit benefit
+        db.session.delete(credit_benefit)
+
+        # Restore the spending bonus to pending status
+        spending_bonus.status = 'pending'
+        spending_bonus.completed_date = None
+
+        # Commit all changes
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f'Successfully undone bonus completion for {card_name}. The spending bonus has been restored and the credit removed.'
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/reset-annual-spending-bonuses', methods=['POST'])
+def manual_reset_annual_spending_bonuses():
+    """Manual route to trigger annual spending bonus reset (for testing)"""
+    try:
+        reset_annual_spending_bonuses()
+        return jsonify({
+            'success': True,
+            'message': 'Annual spending bonus reset completed successfully'
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 @app.route('/api/completed-bonuses', methods=['GET'])
 def get_completed_bonuses():
     """Get all completed signup bonuses"""
@@ -2690,8 +2869,8 @@ def get_completed_signup_bonuses():
 
 def get_real_spending_bonuses():
     """Get threshold bonuses from database for homepage (replaces multipliers per user request)"""
-    # Return threshold bonuses from other_bonus table for homepage
-    bonuses = OtherBonus.query.filter_by(bonus_type='threshold').all()
+    # Return threshold bonuses from other_bonus table for homepage - only pending ones
+    bonuses = OtherBonus.query.filter_by(bonus_type='threshold', status='pending').all()
     result = []
 
     for bonus in bonuses:
@@ -2722,8 +2901,8 @@ def get_real_spending_bonuses():
                 'current_spend': 0,  # Default to 0 for now
                 'progress_percent': 0,  # Default to 0 for now
                 'reset_date': 'December 31',  # Default annual reset
-                'status': 'pending',
-                'status_text': 'Pending'
+                'status': bonus.status,
+                'status_text': bonus.status_text
             }
             result.append(bonus_data)
 
@@ -2739,12 +2918,17 @@ def get_real_credits_by_frequency(frequency):
         if credit.credit_status == 'used':
             continue
 
+        # Use original multiplier format for credits from spending bonuses
+        display_amount = credit.original_multiplier if credit.original_multiplier else credit.credit_amount
+
         credit_data = {
             'card_name': credit.card.name,
-            'credit_amount': credit.credit_amount,
+            'credit_amount': display_amount,
             'description': credit.description,
             'status': credit.credit_status,
-            'status_text': credit.status_text
+            'status_text': credit.status_text,
+            'from_spending_bonus': getattr(credit, 'from_spending_bonus', False),
+            'spending_bonus_id': getattr(credit, 'spending_bonus_id', None)
         }
 
         if credit.benefit_name:
@@ -2761,8 +2945,18 @@ def get_real_credits_by_frequency(frequency):
 
         result.append(credit_data)
 
-    # Sort by credit amount from highest to lowest
-    return sorted(result, key=lambda x: float(str(x['credit_amount']).replace('$', '').replace(',', '')), reverse=True)
+    # Sort by credit amount from highest to lowest (handle non-numeric amounts like "1 night")
+    def safe_sort_key(credit):
+        try:
+            amount_str = str(credit['credit_amount']).replace('$', '').replace(',', '')
+            # Try to extract first number from the string
+            import re
+            numbers = re.findall(r'\d+', amount_str)
+            return float(numbers[0]) if numbers else 0
+        except:
+            return 0
+
+    return sorted(result, key=safe_sort_key, reverse=True)
 
 def get_used_credits_by_frequency(frequency):
     """Get used credits by frequency from database"""
@@ -2774,12 +2968,17 @@ def get_used_credits_by_frequency(frequency):
         if credit.credit_status != 'used':
             continue
 
+        # Use original multiplier format for credits from spending bonuses
+        display_amount = credit.original_multiplier if credit.original_multiplier else credit.credit_amount
+
         credit_data = {
             'card_name': credit.card.name,
-            'credit_amount': credit.credit_amount,
+            'credit_amount': display_amount,
             'description': credit.description,
             'status': credit.credit_status,
-            'status_text': credit.status_text
+            'status_text': credit.status_text,
+            'from_spending_bonus': getattr(credit, 'from_spending_bonus', False),
+            'spending_bonus_id': getattr(credit, 'spending_bonus_id', None)
         }
 
         if credit.benefit_name:
@@ -2796,8 +2995,18 @@ def get_used_credits_by_frequency(frequency):
 
         result.append(credit_data)
 
-    # Sort by credit amount from highest to lowest
-    return sorted(result, key=lambda x: float(str(x['credit_amount']).replace('$', '').replace(',', '')), reverse=True)
+    # Sort by credit amount from highest to lowest (handle non-numeric amounts like "1 night")
+    def safe_sort_key(credit):
+        try:
+            amount_str = str(credit['credit_amount']).replace('$', '').replace(',', '')
+            # Try to extract first number from the string
+            import re
+            numbers = re.findall(r'\d+', amount_str)
+            return float(numbers[0]) if numbers else 0
+        except:
+            return 0
+
+    return sorted(result, key=safe_sort_key, reverse=True)
 
 def get_real_cards():
     """Get cards from enhanced database"""
@@ -3098,6 +3307,10 @@ def run_reset_scheduler():
                 if now.hour == 0 and now.minute == 0:
                     print(f"Running daily credit reset check at {now}")
                     reset_expired_credits()
+
+                    # Also check for annual spending bonus reset on January 1st
+                    check_annual_reset()
+
                     # Sleep for 60 seconds to avoid running multiple times in the same minute
                     time.sleep(60)
                 else:
@@ -3117,6 +3330,66 @@ def run_reset_scheduler():
     atexit.register(stop_scheduler)
 
     print("Credit reset scheduler started - will check daily at midnight")
+
+def reset_annual_spending_bonuses():
+    """
+    Reset annual spending bonuses on January 1st.
+    Creates new pending bonuses for any that were completed in the previous year.
+    """
+    try:
+        with app.app_context():
+            current_year = datetime.datetime.now().year
+
+            # Find all completed spending bonuses from previous years
+            completed_bonuses = OtherBonus.query.filter_by(
+                bonus_type='threshold',
+                status='completed'
+            ).all()
+
+            new_bonuses_created = 0
+
+            for completed_bonus in completed_bonuses:
+                # Check if we already have a pending bonus for this year for the same card/category
+                existing_pending = OtherBonus.query.filter_by(
+                    card_id=completed_bonus.card_id,
+                    bonus_type='threshold',
+                    description=completed_bonus.description,
+                    status='pending'
+                ).first()
+
+                # Only create a new one if we don't already have a pending version
+                if not existing_pending:
+                    # Create a new pending bonus based on the completed one
+                    new_bonus = OtherBonus(
+                        card_id=completed_bonus.card_id,
+                        bonus_type='threshold',
+                        bonus_amount=completed_bonus.bonus_amount,
+                        description=completed_bonus.description,
+                        required_spend=completed_bonus.required_spend,
+                        frequency=completed_bonus.frequency,
+                        status='pending',
+                        created_date=datetime.datetime.utcnow()
+                    )
+
+                    db.session.add(new_bonus)
+                    new_bonuses_created += 1
+
+            if new_bonuses_created > 0:
+                db.session.commit()
+                print(f"Annual reset: Created {new_bonuses_created} new spending bonuses for {current_year}")
+            else:
+                print(f"Annual reset: No new spending bonuses needed for {current_year}")
+
+    except Exception as e:
+        print(f"Error during annual spending bonus reset: {e}")
+        db.session.rollback()
+
+def check_annual_reset():
+    """Check if it's January 1st and run annual reset if needed"""
+    now = datetime.datetime.now()
+    if now.month == 1 and now.day == 1:
+        print("January 1st detected - running annual spending bonus reset")
+        reset_annual_spending_bonuses()
 
 # This special block runs only when we run this file directly
 # (not when it's imported by another file)
