@@ -1,0 +1,1012 @@
+{
+  "cards": [
+    {
+      "card_name": "Chase Sapphire Reserve",
+      "issuer": "Chase",
+      "card_base_name": "Sapphire Reserve"
+    },
+    {
+      "card_name": "American Express Gold Card",
+      "issuer": "American Express",
+      "card_base_name": "Gold Card"
+    },
+    {
+      "card_name": "Capital One VentureX",
+      "issuer": "Capital One",
+      "card_base_name": "VentureX"
+    },
+    {
+      "card_name": "Chase United Quest",
+      "issuer": "Chase",
+      "card_base_name": "United Quest"
+    },
+    {
+      "card_name": "Chase Freedom Unlimited",
+      "issuer": "Chase",
+      "card_base_name": "Freedom Unlimited"
+    },
+    {
+      "card_name": "Chase World of Hyatt",
+      "issuer": "Chase",
+      "card_base_name": "World of Hyatt"
+    },
+    {
+      "card_name": "Synchrony Bank Venmo Cash Back",
+      "issuer": "Synchrony Bank",
+      "card_base_name": "Venmo Cash Back"
+    },
+    {
+      "card_name": "Chase Marriott Bonvoy Boundless",
+      "issuer": "Chase",
+      "card_base_name": "Marriott Bonvoy Boundless"
+    },
+    {
+      "card_name": "American Express Hilton Honors Surpass",
+      "issuer": "American Express",
+      "card_base_name": "Hilton Honors Surpass"
+    },
+    {
+      "card_name": "American Express Hilton Honors Aspire",
+      "issuer": "American Express",
+      "card_base_name": "Hilton Honors Aspire"
+    },
+    {
+      "card_name": "Bank of America Atmos Rewards Ascent",
+      "issuer": "Bank of America",
+      "card_base_name": "Atmos Rewards Ascent"
+    },
+    {
+      "card_name": "U.S. Bank Cash Back",
+      "issuer": "U.S. Bank",
+      "card_base_name": "Cash Back"
+    },
+    {
+      "card_name": "American Express Hilton Honors",
+      "issuer": "American Express",
+      "card_base_name": "Hilton Honors"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "issuer": "American Express",
+      "card_base_name": "Platinum"
+    },
+    {
+      "card_name": "Chase Sapphire Preferred",
+      "issuer": "Chase",
+      "card_base_name": "Sapphire Preferred"
+    },
+    {
+      "card_name": "Chase Freedom Flex",
+      "issuer": "Chase",
+      "card_base_name": "Freedom Flex"
+    }
+  ],
+  "signup_bonuses": [
+    {
+      "card_name": "Capital One VentureX",
+      "bonus_amount": "75,000 miles",
+      "required_spend": 4000,
+      "deadline_months": 3
+    },
+    {
+      "card_name": "Chase United Quest",
+      "bonus_amount": "70,000 miles + 1,000 PQP",
+      "required_spend": 4000,
+      "deadline_months": 3
+    },
+    {
+      "card_name": "Chase Marriott Bonvoy Boundless",
+      "bonus_amount": "3 Free Night Awards",
+      "required_spend": 3000,
+      "deadline_months": 3
+    },
+    {
+      "card_name": "American Express Hilton Honors Surpass",
+      "bonus_amount": "130,000 points",
+      "required_spend": 3000,
+      "deadline_months": 6
+    },
+    {
+      "card_name": "American Express Hilton Honors Aspire",
+      "bonus_amount": "150,000 points",
+      "required_spend": 6000,
+      "deadline_months": 6
+    },
+    {
+      "card_name": "Bank of America Atmos Rewards Ascent",
+      "bonus_amount": "100,000 points + 25k Award",
+      "required_spend": 6000,
+      "deadline_months": 3
+    },
+    {
+      "card_name": "American Express Hilton Honors",
+      "bonus_amount": "80,000 points",
+      "required_spend": 2000,
+      "deadline_months": 6
+    },
+    {
+      "card_name": "American Express Platinum",
+      "bonus_amount": "100000 points",
+      "required_spend": 6000,
+      "deadline_months": 6
+    }
+  ],
+  "threshold_bonuses": [
+    {
+      "card_name": "Chase Sapphire Reserve",
+      "bonus_type": "threshold",
+      "bonus_amount": "$500 Southwest Credit",
+      "description": "$500 Southwest Airlines credit after spending $75k",
+      "required_spend": 75000,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "Chase Sapphire Reserve",
+      "bonus_type": "threshold",
+      "bonus_amount": "$250 Chase Credit",
+      "description": "$250 in Shops at Chase credit after spending $75k",
+      "required_spend": 75000,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "Capital One VentureX",
+      "bonus_type": "anniversary",
+      "bonus_amount": "10,000 miles",
+      "description": "Free miles every year for your card anniversary",
+      "required_spend": 0,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "Chase United Quest",
+      "bonus_type": "threshold",
+      "bonus_amount": "1 PQP per $20",
+      "description": "Earn 1 PQP for every $20 spent, up to 18,000 PQP",
+      "required_spend": 20,
+      "frequency": "N/A"
+    },
+    {
+      "card_name": "Chase United Quest",
+      "bonus_type": "anniversary",
+      "bonus_amount": "10,000-mile discount",
+      "description": "Anniversary 10,000-mile discount for an eligible award flight",
+      "required_spend": 0,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "Chase United Quest",
+      "bonus_type": "threshold",
+      "bonus_amount": "10,000-mile discount",
+      "description": "Additional 10,000-mile discount after spending $20,000",
+      "required_spend": 20000,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "Chase United Quest",
+      "bonus_type": "threshold",
+      "bonus_amount": "2 Seat Upgrades",
+      "description": "Earn 2 global Economy Plus\u00ae seat upgrades after spending $40,000",
+      "required_spend": 40000,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "Chase World of Hyatt",
+      "bonus_type": "anniversary",
+      "bonus_amount": "1 Free Night",
+      "description": "1 Free night at any Category 1-4 Hyatt hotel or resort",
+      "required_spend": 0,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "Chase World of Hyatt",
+      "bonus_type": "threshold",
+      "bonus_amount": "1 Free Night",
+      "description": "Second free night if you spend $15,000 in a calendar year",
+      "required_spend": 15000,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "Chase World of Hyatt",
+      "bonus_type": "threshold",
+      "bonus_amount": "2 Tier Credits",
+      "description": "Earn 2 tier-qualifying night credits for every $5,000 spent",
+      "required_spend": 5000,
+      "frequency": "per_threshold"
+    },
+    {
+      "card_name": "Chase Marriott Bonvoy Boundless",
+      "bonus_type": "anniversary",
+      "bonus_amount": "1 Free Night",
+      "description": "Free night award every year after your account anniversary",
+      "required_spend": 0,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "Chase Marriott Bonvoy Boundless",
+      "bonus_type": "threshold",
+      "bonus_amount": "1 Elite Night Credit",
+      "description": "1 Elite night credit for every $5,000 you spend",
+      "required_spend": 5000,
+      "frequency": "per_threshold"
+    },
+    {
+      "card_name": "Chase Marriott Bonvoy Boundless",
+      "bonus_type": "threshold",
+      "bonus_amount": "Gold Status",
+      "description": "Gold status when you spend $35,000 on purchases",
+      "required_spend": 35000,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "American Express Hilton Honors Surpass",
+      "bonus_type": "threshold",
+      "bonus_amount": "Diamond Status",
+      "description": "Upgrade to Diamond Status after spending $40,000",
+      "required_spend": 40000,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "American Express Hilton Honors Surpass",
+      "bonus_type": "threshold",
+      "bonus_amount": "1 Free Night",
+      "description": "One free night award after spending $15,000",
+      "required_spend": 15000,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "American Express Hilton Honors Aspire",
+      "bonus_type": "threshold",
+      "bonus_amount": "1 Free Night",
+      "description": "Earn an additional Free Night Reward after you spend $30,000",
+      "required_spend": 30000,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "American Express Hilton Honors Aspire",
+      "bonus_type": "threshold",
+      "bonus_amount": "1 Free Night",
+      "description": "Earn an additional Free Night Reward after you spend $60,000",
+      "required_spend": 60000,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "Bank of America Atmos Rewards Ascent",
+      "bonus_type": "threshold",
+      "bonus_amount": "10% Points Bonus",
+      "description": "10% rewards bonus on all points with an eligible BofA account",
+      "required_spend": 0,
+      "frequency": "ongoing"
+    },
+    {
+      "card_name": "Bank of America Atmos Rewards Ascent",
+      "bonus_type": "anniversary",
+      "bonus_amount": "10,000 Status Points",
+      "description": "Get 10,000 status points every year on your account anniversary",
+      "required_spend": 0,
+      "frequency": "annual"
+    },
+    {
+      "card_name": "Bank of America Atmos Rewards Ascent",
+      "bonus_type": "threshold",
+      "bonus_amount": "1 Status Point per $2",
+      "description": "Earn 1 status point for every $2 spent on purchases",
+      "required_spend": 2,
+      "frequency": "N/A"
+    }
+  ],
+  "multipliers": [
+    {
+      "card_name": "Sapphire Reserve",
+      "category": "Chase Travel Portal",
+      "multiplier": 8.0,
+      "description": "8x points on Chase Travel for flights, hotels, etc.",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Sapphire Reserve",
+      "category": "Travel",
+      "multiplier": 4.0,
+      "description": "4x points on travel when you book directly",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Sapphire Reserve",
+      "category": "Dining",
+      "multiplier": 3.0,
+      "description": "3x points on dining at restaurants worldwide",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Sapphire Reserve",
+      "category": "Transportation",
+      "multiplier": 4.0,
+      "description": "4x bonus points on eligible Lyft rides",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Sapphire Reserve",
+      "category": "Fitness",
+      "multiplier": 10.0,
+      "description": "10x bonus points on eligible Peloton hardware",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Gold Card",
+      "category": "Dining",
+      "multiplier": 4.0,
+      "description": "4x points on restaurants worldwide",
+      "cap_amount": 0,
+      "cap_frequency": "annual"
+    },
+    {
+      "card_name": "Gold Card",
+      "category": "Groceries",
+      "multiplier": 4.0,
+      "description": "4x points on groceries at U.S. supermarkets",
+      "cap_amount": 0,
+      "cap_frequency": "annual"
+    },
+    {
+      "card_name": "Gold Card",
+      "category": "Flights",
+      "multiplier": 3.0,
+      "description": "3x points on flights booked directly with airlines or AmexTravel",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Gold Card",
+      "category": "Travel",
+      "multiplier": 2.0,
+      "description": "2x points on prepaid travel through AmexTravel.com",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "VentureX",
+      "category": "Hotels & Rental Cars",
+      "multiplier": 10.0,
+      "description": "10x miles on hotels and rental cars via Capital One Travel",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "VentureX",
+      "category": "Flights & Vacation Rentals",
+      "multiplier": 5.0,
+      "description": "5x miles on flights and vacation rentals via Capital One Travel",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "VentureX",
+      "category": "General",
+      "multiplier": 2.0,
+      "description": "2x miles on all other purchases",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "United Quest",
+      "category": "Flights",
+      "multiplier": 8.0,
+      "description": "8x miles on United flights",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "United Quest",
+      "category": "United Purchases",
+      "multiplier": 3.0,
+      "description": "3x miles on all other eligible United purchases",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "United Quest",
+      "category": "Hotels",
+      "multiplier": 5.0,
+      "description": "5x miles on hotel stays via Renowned Hotels portal",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "United Quest",
+      "category": "Travel",
+      "multiplier": 2.0,
+      "description": "2x miles on all other travel",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "United Quest",
+      "category": "Dining",
+      "multiplier": 2.0,
+      "description": "2x miles on dining",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "United Quest",
+      "category": "Streaming",
+      "multiplier": 2.0,
+      "description": "2x miles on select streaming services",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "United Quest",
+      "category": "General",
+      "multiplier": 1.0,
+      "description": "1x miles on all other purchases",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Freedom Unlimited",
+      "category": "Chase Travel Portal",
+      "multiplier": 5.0,
+      "description": "5% cash back on travel booked through Chase Travel",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Freedom Unlimited",
+      "category": "Dining",
+      "multiplier": 3.0,
+      "description": "3% cash back on dining",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Freedom Unlimited",
+      "category": "Health",
+      "multiplier": 3.0,
+      "description": "3% cash back on drugstores",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Freedom Unlimited",
+      "category": "General",
+      "multiplier": 1.5,
+      "description": "1.5% cash back on every purchase",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "World of Hyatt",
+      "category": "Hotels",
+      "multiplier": 9.0,
+      "description": "9x on qualifying purchases at Hyatt hotels and resorts",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "World of Hyatt",
+      "category": "General",
+      "multiplier": 2.0,
+      "description": "2x on dining, airline tickets, gym, local transit",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "World of Hyatt",
+      "category": "General",
+      "multiplier": 1.0,
+      "description": "1x on all other purchases",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Venmo Cash Back",
+      "category": "Top Category",
+      "multiplier": 3.0,
+      "description": "3% cash back on your top spend category",
+      "cap_amount": 0,
+      "cap_frequency": "monthly"
+    },
+    {
+      "card_name": "Venmo Cash Back",
+      "category": "Second Category",
+      "multiplier": 2.0,
+      "description": "2% on the next top spend category",
+      "cap_amount": 0,
+      "cap_frequency": "monthly"
+    },
+    {
+      "card_name": "Venmo Cash Back",
+      "category": "General",
+      "multiplier": 1.0,
+      "description": "1% on all other eligible purchases",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Marriott Bonvoy Boundless",
+      "category": "Hotels",
+      "multiplier": 17.0,
+      "description": "17x on hotels participating in Marriott Bonvoy",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Marriott Bonvoy Boundless",
+      "category": "General",
+      "multiplier": 3.0,
+      "description": "3x on gas, grocery, and dining",
+      "cap_amount": 0,
+      "cap_frequency": "annual"
+    },
+    {
+      "card_name": "Marriott Bonvoy Boundless",
+      "category": "General",
+      "multiplier": 2.0,
+      "description": "2x points on all other purchases",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Hilton Honors Surpass",
+      "category": "Hotels",
+      "multiplier": 12.0,
+      "description": "12x Bonus Points on purchases with Hilton portfolio",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Hilton Honors Surpass",
+      "category": "General",
+      "multiplier": 6.0,
+      "description": "6x Bonus Points at U.S. restaurants, gas, supermarkets",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Hilton Honors Surpass",
+      "category": "Retail",
+      "multiplier": 4.0,
+      "description": "4x Bonus Points on U.S. online retail purchases",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Hilton Honors Surpass",
+      "category": "General",
+      "multiplier": 3.0,
+      "description": "3x Bonus Points all other eligible purchases",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Hilton Honors Aspire",
+      "category": "Hotels",
+      "multiplier": 14.0,
+      "description": "14x Bonus Points on purchases with Hilton portfolio",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Hilton Honors Aspire",
+      "category": "Travel & Dining",
+      "multiplier": 7.0,
+      "description": "7x Bonus Points on flights, select car rentals, and U.S. restaurants",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Hilton Honors Aspire",
+      "category": "General",
+      "multiplier": 3.0,
+      "description": "3x Bonus Points on all other eligible purchases",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Atmos Rewards Ascent",
+      "category": "Travel & Dining",
+      "multiplier": 3.0,
+      "description": "3x points on Alaska/Hawaiian Airlines, dining, foreign purchases",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Atmos Rewards Ascent",
+      "category": "General",
+      "multiplier": 1.0,
+      "description": "1x on all other purchases",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Cash Back",
+      "category": "Mobile Wallet",
+      "multiplier": 4.5,
+      "description": "4.5x on all Apple Pay purchases (through Dec 2025)",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Hilton Honors",
+      "category": "Hotels",
+      "multiplier": 7.0,
+      "description": "7x points on eligible purchases with Hilton portfolio",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Hilton Honors",
+      "category": "Dining",
+      "multiplier": 5.0,
+      "description": "5x on dining",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Hilton Honors",
+      "category": "Groceries",
+      "multiplier": 5.0,
+      "description": "5x on groceries",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Hilton Honors",
+      "category": "Gas",
+      "multiplier": 5.0,
+      "description": "5x on gas",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    },
+    {
+      "card_name": "Hilton Honors",
+      "category": "General",
+      "multiplier": 3.0,
+      "description": "3x for all other purchases",
+      "cap_amount": 0,
+      "cap_frequency": "N/A"
+    }
+  ],
+  "credits": [
+    {
+      "card_name": "Bank of America Atmos Rewards Ascent",
+      "benefit_name": "Airport Security Credit",
+      "credit_amount": 120,
+      "description": "Up to $120 Airport Security Credit every four years",
+      "frequency": "every_4_years",
+      "category": "Travel"
+    },
+    {
+      "card_name": "American Express Gold Card",
+      "benefit_name": "Resy Credit",
+      "credit_amount": 100,
+      "description": "Up to $100 back annually for Resy purchases",
+      "frequency": "annual",
+      "category": "Dining"
+    },
+    {
+      "card_name": "American Express Gold Card",
+      "benefit_name": "Uber Cash",
+      "credit_amount": 120,
+      "description": "$10 in Uber Cash each month",
+      "frequency": "monthly",
+      "category": "Transportation"
+    },
+    {
+      "card_name": "American Express Gold Card",
+      "benefit_name": "Dunkin' Donuts Credit",
+      "credit_amount": 84,
+      "description": "$7 in monthly statement credits for Dunkin Donuts",
+      "frequency": "monthly",
+      "category": "Dining"
+    },
+    {
+      "card_name": "American Express Gold Card",
+      "benefit_name": "Dining Credit",
+      "credit_amount": 120,
+      "description": "$10 in statement credits monthly at select dining partners",
+      "frequency": "monthly",
+      "category": "Dining"
+    },
+    {
+      "card_name": "American Express Hilton Honors Aspire",
+      "benefit_name": "CLEAR Plus Credit",
+      "credit_amount": 209,
+      "description": "$209 per calendar year in credits for a CLEAR plus membership",
+      "frequency": "annual",
+      "category": "Travel"
+    },
+    {
+      "card_name": "American Express Hilton Honors Aspire",
+      "benefit_name": "Hilton Resort Credit",
+      "credit_amount": 400,
+      "description": "Up to $200 in statement credits semi-annually for Hilton Resorts",
+      "frequency": "semi-annually",
+      "category": "Travel"
+    },
+    {
+      "card_name": "American Express Hilton Honors Aspire",
+      "benefit_name": "Flight Credit",
+      "credit_amount": 200,
+      "description": "$50 in statement credits each quarter on flight purchases",
+      "frequency": "quarterly",
+      "category": "Travel"
+    },
+    {
+      "card_name": "American Express Hilton Honors Aspire",
+      "benefit_name": "Luxury Hotel Credit",
+      "credit_amount": 100,
+      "description": "$100 resort credit at Waldorf Astoria and Conrad (2 night min)",
+      "frequency": "per_stay",
+      "category": "Travel"
+    },
+    {
+      "card_name": "American Express Hilton Honors Surpass",
+      "benefit_name": "Hilton Credit",
+      "credit_amount": 200,
+      "description": "$50 in statement credits each quarter for Hilton purchases",
+      "frequency": "quarterly",
+      "category": "Travel"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "benefit_name": "Uber One Membership",
+      "credit_amount": 120,
+      "description": "Up to $120 for Uber One membership",
+      "frequency": "annual",
+      "category": "Transportation"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "benefit_name": "Airline Fee Credit",
+      "credit_amount": 200,
+      "description": "Up to $200 in statement credits with selected airline",
+      "frequency": "annual",
+      "category": "Travel"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "benefit_name": "CLEAR Membership",
+      "credit_amount": 209,
+      "description": "Up to $209 annually for CLEAR membership",
+      "frequency": "annual",
+      "category": "Travel"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "benefit_name": "Equinox Credit",
+      "credit_amount": 300,
+      "description": "Up to $300 in Equinox credit per calendar year",
+      "frequency": "annual",
+      "category": "Fitness"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "benefit_name": "Oura Ring Credit",
+      "credit_amount": 200,
+      "description": "Up to $200 annual Oura Ring credit",
+      "frequency": "annual",
+      "category": "Wellness"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "benefit_name": "Saks Credit",
+      "credit_amount": 100,
+      "description": "Up to a $100 per calendar year at Saks",
+      "frequency": "annual",
+      "category": "Shopping"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "benefit_name": "Uber Cash",
+      "credit_amount": 200,
+      "description": "Up to $200 per calendar year in Uber Cash",
+      "frequency": "annual",
+      "category": "Transportation"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "benefit_name": "Walmart+ Credit",
+      "credit_amount": 155,
+      "description": "Up to a $155 statement credit per calendar year for Walmart+",
+      "frequency": "annual",
+      "category": "Shopping"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "benefit_name": "Hotel Credit",
+      "credit_amount": 600,
+      "description": "Up to $300 biannually for hotel credit",
+      "frequency": "semi-annually",
+      "category": "Travel"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "benefit_name": "Lululemon Credit",
+      "credit_amount": 300,
+      "description": "Up to $75 quarterly at Lululemon",
+      "frequency": "quarterly",
+      "category": "Shopping"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "benefit_name": "Resy Restaurants Credit",
+      "credit_amount": 400,
+      "description": "Up to $100 quarterly for U.S. Resy Restaurants",
+      "frequency": "quarterly",
+      "category": "Dining"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "benefit_name": "Streaming Credit",
+      "credit_amount": 300,
+      "description": "Up to $25 monthly for Paramount+, YouTube Premium/TV",
+      "frequency": "monthly",
+      "category": "Entertainment"
+    },
+    {
+      "card_name": "American Express Platinum",
+      "benefit_name": "Global Entry / TSA",
+      "credit_amount": 120,
+      "description": "Up to $120 statement credit for Global Entry/TSA PreCheck",
+      "frequency": "every_4_years",
+      "category": "Travel"
+    },
+    {
+      "card_name": "Chase Sapphire Reserve",
+      "benefit_name": "Travel Credit",
+      "credit_amount": 300,
+      "description": "Up to $300 annually towards travel purchases",
+      "frequency": "annual",
+      "category": "Travel"
+    },
+    {
+      "card_name": "Chase Sapphire Reserve",
+      "benefit_name": "The Edit Hotel Credit",
+      "credit_amount": 500,
+      "description": "Up to $500 annually for prepaid bookings for The Edit properties",
+      "frequency": "annual",
+      "category": "Travel"
+    },
+    {
+      "card_name": "Chase Sapphire Reserve",
+      "benefit_name": "Partner Hotel Credit",
+      "credit_amount": 250,
+      "description": "$250 on prepaid hotel bookings for specific partners",
+      "frequency": "annual",
+      "category": "Travel"
+    },
+    {
+      "card_name": "Chase Sapphire Reserve",
+      "benefit_name": "DashPass Membership",
+      "credit_amount": 120,
+      "description": "Complimentary $120 DashPass membership annually",
+      "frequency": "annual",
+      "category": "Dining"
+    },
+    {
+      "card_name": "Chase Sapphire Reserve",
+      "benefit_name": "Peloton Membership Credit",
+      "credit_amount": 120,
+      "description": "$120 in annual statement credit towards Peloton membership",
+      "frequency": "annual",
+      "category": "Fitness"
+    },
+    {
+      "card_name": "Chase Sapphire Reserve",
+      "benefit_name": "Exclusive Dining Credit",
+      "credit_amount": 300,
+      "description": "$150 in statement credits semi-annually for exclusive dining",
+      "frequency": "semi-annually",
+      "category": "Dining"
+    },
+    {
+      "card_name": "Chase Sapphire Reserve",
+      "benefit_name": "Ticketing Credit",
+      "credit_amount": 300,
+      "description": "$150 semi-annually for purchases on StubHub and viagogo.com",
+      "frequency": "semi-annually",
+      "category": "Entertainment"
+    },
+    {
+      "card_name": "Chase Sapphire Reserve",
+      "benefit_name": "DoorDash Credit",
+      "credit_amount": 300,
+      "description": "$25 per month to spend on DoorDash (5restaurant,2x10 grocery)",
+      "frequency": "monthly",
+      "category": "Dining"
+    },
+    {
+      "card_name": "Chase Sapphire Reserve",
+      "benefit_name": "Lyft Credit",
+      "credit_amount": 120,
+      "description": "$10 monthly Lyft credit",
+      "frequency": "monthly",
+      "category": "Transportation"
+    },
+    {
+      "card_name": "Chase Sapphire Reserve",
+      "benefit_name": "Global Entry / TSA / NEXUS",
+      "credit_amount": 120,
+      "description": "Reimbursement for Global Entry, TSA Precheck, or NEXUS",
+      "frequency": "every_4_years",
+      "category": "Travel"
+    },
+    {
+      "card_name": "Chase United Quest",
+      "benefit_name": "United Travel Credit",
+      "credit_amount": 200,
+      "description": "$200 United travel credit",
+      "frequency": "annual",
+      "category": "Travel"
+    },
+    {
+      "card_name": "Chase United Quest",
+      "benefit_name": "Hotel Credit",
+      "credit_amount": 150,
+      "description": "Up to $150 in credits annually on prepaid hotel stays",
+      "frequency": "annual",
+      "category": "Travel"
+    },
+    {
+      "card_name": "Chase United Quest",
+      "benefit_name": "Rideshare Credit",
+      "credit_amount": 100,
+      "description": "Up to $100 in credits each calendar year on rideshare",
+      "frequency": "annual",
+      "category": "Transportation"
+    },
+    {
+      "card_name": "Chase United Quest",
+      "benefit_name": "Rental Car Credit",
+      "credit_amount": 80,
+      "description": "Up to $80 in United travel credits annually for Avis/Budget",
+      "frequency": "annual",
+      "category": "Travel"
+    },
+    {
+      "card_name": "Chase United Quest",
+      "benefit_name": "Instacart Credit",
+      "credit_amount": 180,
+      "description": "Up to $180 Instacart credits each calendar year",
+      "frequency": "annual",
+      "category": "Groceries"
+    },
+    {
+      "card_name": "Chase United Quest",
+      "benefit_name": "JSX Credit",
+      "credit_amount": 150,
+      "description": "Up to $150 in credits annually on flights via JSX",
+      "frequency": "annual",
+      "category": "Travel"
+    },
+    {
+      "card_name": "Chase United Quest",
+      "benefit_name": "Checked Bag Credit",
+      "credit_amount": 360,
+      "description": "Free first and second checked bags (value up to $360 per trip)",
+      "frequency": "per_flight",
+      "category": "Travel"
+    },
+    {
+      "card_name": "Capital One VentureX",
+      "benefit_name": "Travel Credit",
+      "credit_amount": 300,
+      "description": "$300 travel credit for bookings through Capital One Travel",
+      "frequency": "annual",
+      "category": "Travel"
+    },
+    {
+      "card_name": "Capital One VentureX",
+      "benefit_name": "Global Entry / TSA PreCheck",
+      "credit_amount": 120,
+      "description": "Global Entry or TSA PreCheck credit",
+      "frequency": "every_4_years",
+      "category": "Travel"
+    }
+  ]
+}

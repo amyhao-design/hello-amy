@@ -1,0 +1,21 @@
+card_name,bonus_type,bonus_amount,description,required_spend,frequency
+Chase Sapphire Reserve,threshold,$500 Southwest Credit,$500 Southwest Airlines credit after spending $75k,"$75,000",annual
+Chase Sapphire Reserve,threshold,$250 Chase Credit,$250 in Shops at Chase credit after spending $75k,"$75,000",annual
+Capital One VentureX,anniversary,"10,000 miles",Free miles every year for your card anniversary,$0,annual
+Chase United Quest,threshold,1 PQP per $20,"Earn 1 PQP for every $20 spent, up to 18,000 PQP",$20,N/A
+Chase United Quest,anniversary,"10,000-mile discount","Anniversary 10,000-mile discount for an eligible award flight",$0,annual
+Chase United Quest,threshold,"10,000-mile discount","Additional 10,000-mile discount after spending $20,000","$20,000",annual
+Chase United Quest,threshold,2 Seat Upgrades,"Earn 2 global Economy Plus® seat upgrades after spending $40,000","$40,000",annual
+Chase World of Hyatt,anniversary,1 Free Night,1 Free night at any Category 1-4 Hyatt hotel or resort,$0,annual
+Chase World of Hyatt,threshold,1 Free Night,"Second free night if you spend $15,000 in a calendar year","$15,000",annual
+Chase World of Hyatt,threshold,2 Tier Credits,"Earn 2 tier-qualifying night credits for every $5,000 spent","$5,000",per_threshold
+Chase Marriott Bonvoy Boundless,anniversary,1 Free Night,Free night award every year after your account anniversary,$0,annual
+Chase Marriott Bonvoy Boundless,threshold,1 Elite Night Credit,"1 Elite night credit for every $5,000 you spend","$5,000",per_threshold
+Chase Marriott Bonvoy Boundless,threshold,Gold Status,"Gold status when you spend $35,000 on purchases","$35,000",annual
+American Express Hilton Honors Surpass,threshold,Diamond Status,"Upgrade to Diamond Status after spending $40,000","$40,000",annual
+American Express Hilton Honors Surpass,threshold,1 Free Night,"One free night award after spending $15,000","$15,000",annual
+American Express Hilton Honors Aspire,threshold,1 Free Night,"Earn an additional Free Night Reward after you spend $30,000","$30,000",annual
+American Express Hilton Honors Aspire,threshold,1 Free Night,"Earn an additional Free Night Reward after you spend $60,000","$60,000",annual
+Bank of America Atmos Rewards Ascent,threshold,10% Points Bonus,10% rewards bonus on all points with an eligible BofA account,$0,ongoing
+Bank of America Atmos Rewards Ascent,anniversary,"10,000 Status Points","Get 10,000 status points every year on your account anniversary",$0,annual
+Bank of America Atmos Rewards Ascent,threshold,1 Status Point per $2,Earn 1 status point for every $2 spent on purchases,$2,N/A

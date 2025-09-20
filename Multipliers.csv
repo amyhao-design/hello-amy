@@ -1,0 +1,48 @@
+card_name,category,multiplier,description,cap_amount,cap_frequency
+Sapphire Reserve,Chase Travel Portal,8,"8x points on Chase Travel for flights, hotels, etc.",0,N/A
+Sapphire Reserve,Travel,4,4x points on travel when you book directly,0,N/A
+Sapphire Reserve,Dining,3,3x points on dining at restaurants worldwide,0,N/A
+Sapphire Reserve,Transportation,4,4x bonus points on eligible Lyft rides,0,N/A
+Sapphire Reserve,Fitness,10,10x bonus points on eligible Peloton hardware,"50,000 points",N/A
+Gold Card,Dining,4,4x points on restaurants worldwide,"50,000 points",annual
+Gold Card,Groceries,4,4x points on groceries at U.S. supermarkets,"25,000 points",annual
+Gold Card,Flights,3,3x points on flights booked directly with airlines or AmexTravel,0,N/A
+Gold Card,Travel,2,2x points on prepaid travel through AmexTravel.com,0,N/A
+VentureX,Hotels & Rental Cars,10,10x miles on hotels and rental cars via Capital One Travel,0,N/A
+VentureX,Flights & Vacation Rentals,5,5x miles on flights and vacation rentals via Capital One Travel,0,N/A
+VentureX,General,2,2x miles on all other purchases,0,N/A
+United Quest,Flights,8,8x miles on United flights,0,N/A
+United Quest,United Purchases,3,3x miles on all other eligible United purchases,0,N/A
+United Quest,Hotels,5,5x miles on hotel stays via Renowned Hotels portal,0,N/A
+United Quest,Travel,2,2x miles on all other travel,0,N/A
+United Quest,Dining,2,2x miles on dining,0,N/A
+United Quest,Streaming,2,2x miles on select streaming services,0,N/A
+United Quest,General,1,1x miles on all other purchases,0,N/A
+Freedom Unlimited,Chase Travel Portal,5,5% cash back on travel booked through Chase Travel,0,N/A
+Freedom Unlimited,Dining,3,3% cash back on dining,0,N/A
+Freedom Unlimited,Health,3,3% cash back on drugstores,0,N/A
+Freedom Unlimited,General,1.5,1.5% cash back on every purchase,0,N/A
+World of Hyatt,Hotels,9,9x on qualifying purchases at Hyatt hotels and resorts,0,N/A
+World of Hyatt,General,2,"2x on dining, airline tickets, gym, local transit",0,N/A
+World of Hyatt,General,1,1x on all other purchases,0,N/A
+Venmo Cash Back,Top Category,3,3% cash back on your top spend category,0,monthly
+Venmo Cash Back,Second Category,2,2% on the next top spend category,0,monthly
+Venmo Cash Back,General,1,1% on all other eligible purchases,0,N/A
+Marriott Bonvoy Boundless,Hotels,17,17x on hotels participating in Marriott Bonvoy,0,N/A
+Marriott Bonvoy Boundless,General,3,"3x on gas, grocery, and dining","6,000 points",annual
+Marriott Bonvoy Boundless,General,2,2x points on all other purchases,0,N/A
+Hilton Honors Surpass,Hotels,12,12x Bonus Points on purchases with Hilton portfolio,0,N/A
+Hilton Honors Surpass,General,6,"6x Bonus Points at U.S. restaurants, gas, supermarkets",0,N/A
+Hilton Honors Surpass,Retail,4,4x Bonus Points on U.S. online retail purchases,0,N/A
+Hilton Honors Surpass,General,3,3x Bonus Points all other eligible purchases,0,N/A
+Hilton Honors Aspire,Hotels,14,14x Bonus Points on purchases with Hilton portfolio,0,N/A
+Hilton Honors Aspire,Travel & Dining,7,"7x Bonus Points on flights, select car rentals, and U.S. restaurants",0,N/A
+Hilton Honors Aspire,General,3,3x Bonus Points on all other eligible purchases,0,N/A
+Atmos Rewards Ascent,Travel & Dining,3,"3x points on Alaska/Hawaiian Airlines, dining, foreign purchases",0,N/A
+Atmos Rewards Ascent,General,1,1x on all other purchases,0,N/A
+Cash Back,Mobile Wallet,4.5,4.5x on all Apple Pay purchases (through Dec 2025),0,N/A
+Hilton Honors,Hotels,7,7x points on eligible purchases with Hilton portfolio,0,N/A
+Hilton Honors,Dining,5,5x on dining,0,N/A
+Hilton Honors,Groceries,5,5x on groceries,0,N/A
+Hilton Honors,Gas,5,5x on gas,0,N/A
+Hilton Honors,General,3,3x for all other purchases,0,N/A

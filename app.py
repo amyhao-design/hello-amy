@@ -6,16 +6,26 @@ from dateutil.relativedelta import relativedelta
 from threading import Thread
 import time
 import atexit
+import os
+
+# Import our local cards database service
+from local_cards_service import LocalCardsService
+
+# Master database functions will be defined below
 
 # Create our web application instance
 app = Flask(__name__)
 
 # --- DATABASE CONFIGURATION ---
-# This line tells our app where to find the database file. 
+# This line tells our app where to find the database file.
 # We are using SQLite, which is a simple file-based database.
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 # This creates the database object that we will use to interact with our database.
 db = SQLAlchemy(app)
+
+# --- LOCAL CARDS DATABASE CONFIGURATION ---
+# Initialize local cards database service for fetching card data
+cards_service = LocalCardsService()
 
 # Custom Jinja2 filter to format dollar amounts without unnecessary decimals
 @app.template_filter('currency')
@@ -255,6 +265,7 @@ class CardEnhanced(db.Model):
     last_four = db.Column(db.String(4), default='0000')
     issuer = db.Column(db.String(50), nullable=True)
     brand_class = db.Column(db.String(50), nullable=True)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
 
     # Relationships
     signup_bonuses = db.relationship('SignupBonus', backref='card', lazy=True)
@@ -1165,22 +1176,22 @@ def dashboard():
     """
     # Use real enhanced cards or fallback to sample data
     if CardEnhanced.query.first():
-        # NEW: Use real database data
+        # NEW: Use master database for data-driven display
         cards = get_real_cards()
-        signup_bonuses = get_real_signup_bonuses()
-        spending_bonuses = get_real_spending_bonuses()
-        annual_credits = get_real_credits_by_frequency('annual')
-        semiannual_credits = get_real_credits_by_frequency('semi-annual')
-        quarterly_credits = get_real_credits_by_frequency('quarterly')
-        monthly_credits = get_real_credits_by_frequency('monthly')
-        onetime_credits = get_real_credits_by_frequency('onetime')
+        signup_bonuses = get_master_signup_bonuses()
+        spending_bonuses = get_master_threshold_bonuses()
+        annual_credits = get_master_credits_by_frequency('annual')
+        semiannual_credits = get_master_credits_by_frequency('semi-annual')
+        quarterly_credits = get_master_credits_by_frequency('quarterly')
+        monthly_credits = get_master_credits_by_frequency('monthly')
+        onetime_credits = get_master_credits_by_frequency('onetime')
 
         # Get used credits for each frequency
-        used_annual_credits = get_used_credits_by_frequency('annual')
-        used_semiannual_credits = get_used_credits_by_frequency('semi-annual')
-        used_quarterly_credits = get_used_credits_by_frequency('quarterly')
-        used_monthly_credits = get_used_credits_by_frequency('monthly')
-        used_onetime_credits = get_used_credits_by_frequency('onetime')
+        used_annual_credits = get_master_used_credits_by_frequency('annual')
+        used_semiannual_credits = get_master_used_credits_by_frequency('semi-annual')
+        used_quarterly_credits = get_master_used_credits_by_frequency('quarterly')
+        used_monthly_credits = get_master_used_credits_by_frequency('monthly')
+        used_onetime_credits = get_master_used_credits_by_frequency('onetime')
     else:
         # Fallback to sample data if enhanced data not available
         cards = get_all_cards()
@@ -1284,25 +1295,26 @@ def show_card_details(card_id):
 @app.route('/api/cards', methods=['GET'])
 def api_get_all_cards():
     """
-    API Endpoint: Get all cards as JSON data
-    Like asking "Give me a list of all my credit cards"
-    Returns: JSON array of all cards with basic info
+    API Endpoint: Get all active cards as JSON data
+    Like asking "Give me a list of all my active credit cards"
+    Returns: JSON array of all active cards with basic info
     """
     try:
-        cards = Card.query.all()
+        # Get only active cards from enhanced database
+        cards = CardEnhanced.query.filter_by(is_active=True).all()
         cards_data = []
 
         for card in cards:
-            # Count benefits for each card
-            multiplier_count = MultiplierBenefit.query.filter_by(card_id=card.id).count()
-            credit_count = CreditBenefit.query.filter_by(card_id=card.id).count()
+            # Count benefits for each card using enhanced relationships
+            multiplier_count = len(card.spending_bonuses)
+            credit_count = len(card.credit_benefits)
 
             card_info = {
                 'id': card.id,
                 'name': card.name,
                 'multiplier_benefits_count': multiplier_count,
                 'credit_benefits_count': credit_count,
-                'total_benefits': multiplier_count + credit_count
+                'total_benefits': card.total_benefits
             }
             cards_data.append(card_info)
 
@@ -1514,6 +1526,146 @@ def get_used_credits_api(frequency):
         return jsonify({
             'success': False,
             'error': str(e)
+        }), 500
+
+# === LOCAL CARDS DATABASE ROUTES ===
+
+@app.route('/api/available-cards', methods=['GET'])
+def get_available_cards_from_database():
+    """Get all available cards from local database"""
+    try:
+        cards = cards_service.get_available_cards()
+        return jsonify({
+            'success': True,
+            'cards': cards,
+            'total_cards': len(cards)
+        })
+
+    except Exception as e:
+        print(f"Error fetching cards from local database: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to fetch cards from local database'
+        }), 500
+
+@app.route('/add-card-from-sheets', methods=['POST'])
+def add_card_from_database():
+    """Add a new credit card with data from local database"""
+    try:
+        data = request.get_json()
+        card_name = data.get('card_name')
+
+        if not card_name:
+            return jsonify({
+                'success': False,
+                'error': 'Card name is required'
+            }), 400
+
+        # Check if card already exists
+        existing_card = CardEnhanced.query.filter_by(name=card_name, is_active=True).first()
+        if existing_card:
+            return jsonify({
+                'success': False,
+                'error': f'Card "{card_name}" already exists in your wallet'
+            }), 400
+
+        # Get complete card data from local database
+        card_data = cards_service.get_complete_card_data(card_name)
+        if not card_data:
+            return jsonify({
+                'success': False,
+                'error': f'Card "{card_name}" not found in local database'
+            }), 404
+
+        # Create new CardEnhanced record
+        card_info = card_data['card_info']
+        new_card = CardEnhanced(
+            name=card_name,
+            issuer=card_info.get('issuer', ''),
+            brand_class=card_info.get('brand_class', ''),
+            is_active=True
+        )
+        db.session.add(new_card)
+        db.session.flush()  # Get the card ID
+
+        # Add signup bonuses
+        for bonus_data in card_data['signup_bonuses']:
+            bonus = SignupBonus(
+                card_id=new_card.id,
+                bonus_amount=bonus_data.get('bonus_amount', ''),
+                description=bonus_data.get('description', ''),
+                required_spend=float(bonus_data.get('required_spend', 0)) if bonus_data.get('required_spend') else 0,
+                deadline=None,  # Will be calculated based on deadline_months
+                current_spend=0,
+                is_completed=False
+            )
+
+            # Calculate deadline if deadline_months is provided
+            if bonus_data.get('deadline_months'):
+                try:
+                    months = int(bonus_data['deadline_months'])
+                    bonus.deadline = (datetime.datetime.now() + relativedelta(months=months)).date()
+                except:
+                    pass
+
+            db.session.add(bonus)
+
+        # Add threshold bonuses (from SpendingBonuses sheet -> displayed as "Threshold Bonuses" on dashboard)
+        for bonus_data in card_data['threshold_bonuses']:
+            bonus = OtherBonus(
+                card_id=new_card.id,
+                bonus_type='threshold',
+                bonus_amount=bonus_data.get('bonus_amount', ''),
+                description=bonus_data.get('description', ''),
+                required_spend=float(bonus_data.get('required_spend', 0)) if bonus_data.get('required_spend') else 0,
+                frequency=bonus_data.get('frequency', 'annual'),
+                current_spend=0,
+                is_completed=False,
+                completed_date=None,
+                expiry_date=None
+            )
+            db.session.add(bonus)
+
+        # Add credit benefits
+        for benefit_data in card_data['credit_benefits']:
+            benefit = CreditBenefit2(
+                card_id=new_card.id,
+                benefit_name=benefit_data.get('benefit_name', ''),
+                category=benefit_data.get('category', ''),
+                credit_amount=float(benefit_data.get('credit_amount', 0)) if benefit_data.get('credit_amount') else 0,
+                description=benefit_data.get('description', ''),
+                frequency=benefit_data.get('frequency', 'annual'),
+                required_amount=0,  # Default
+                current_amount=0,
+                reset_date=None
+            )
+
+            # Calculate reset date based on frequency
+            if benefit.frequency == 'annual':
+                benefit.reset_date = (datetime.datetime.now() + relativedelta(years=1)).date()
+            elif benefit.frequency == 'monthly':
+                benefit.reset_date = (datetime.datetime.now() + relativedelta(months=1)).date()
+            elif benefit.frequency == 'quarterly':
+                benefit.reset_date = (datetime.datetime.now() + relativedelta(months=3)).date()
+
+            db.session.add(benefit)
+
+        # Note: Multipliers are NOT added here - they're only for card details view, not dashboard
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f'Card "{card_name}" added successfully with all bonuses and benefits!',
+            'card_id': new_card.id
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error adding card from Google Sheets: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'An error occurred while adding the card'
         }), 500
 
 # === NEW INTERACTIVE ROUTES ===
@@ -2297,18 +2449,19 @@ def initialize_enhanced_data():
             return
 
         # Create all 12 enhanced cards with proper attributes
+        # IMPORTANT: These names must match exactly with the master CSV database names
         cards_data = [
             {'name': 'Chase Sapphire Reserve', 'issuer': 'Chase', 'brand_class': 'chase', 'last_four': '5432'},
-            {'name': 'American Express Gold', 'issuer': 'American Express', 'brand_class': 'amex', 'last_four': '1001'},
+            {'name': 'American Express Gold Card', 'issuer': 'American Express', 'brand_class': 'amex', 'last_four': '1001'},
             {'name': 'Capital One VentureX', 'issuer': 'Capital One', 'brand_class': 'capital-one', 'last_four': '7890'},
             {'name': 'Chase United Quest', 'issuer': 'Chase', 'brand_class': 'chase', 'last_four': '2468'},
             {'name': 'Chase Freedom Unlimited', 'issuer': 'Chase', 'brand_class': 'chase', 'last_four': '1357'},
-            {'name': 'World of Hyatt', 'issuer': 'Chase', 'brand_class': 'hyatt', 'last_four': '9753'},
-            {'name': 'Venmo Cash Back', 'issuer': 'Synchrony', 'brand_class': 'venmo', 'last_four': '4682'},
-            {'name': 'Marriott Bonvoy Boundless', 'issuer': 'Chase', 'brand_class': 'marriott', 'last_four': '7531'},
-            {'name': 'Hilton Honors Surpass', 'issuer': 'American Express', 'brand_class': 'hilton', 'last_four': '8642'},
-            {'name': 'Hilton Honors Aspire', 'issuer': 'American Express', 'brand_class': 'hilton', 'last_four': '9753'},
-            {'name': 'Atmos Rewards Ascent', 'issuer': 'Bank of America', 'brand_class': 'atmos', 'last_four': '1592'},
+            {'name': 'Chase World of Hyatt', 'issuer': 'Chase', 'brand_class': 'hyatt', 'last_four': '9753'},
+            {'name': 'Synchrony Bank Venmo Cash Back', 'issuer': 'Synchrony Bank', 'brand_class': 'venmo', 'last_four': '4682'},
+            {'name': 'Chase Marriott Bonvoy Boundless', 'issuer': 'Chase', 'brand_class': 'marriott', 'last_four': '7531'},
+            {'name': 'American Express Hilton Honors Surpass', 'issuer': 'American Express', 'brand_class': 'hilton', 'last_four': '8642'},
+            {'name': 'American Express Hilton Honors Aspire', 'issuer': 'American Express', 'brand_class': 'hilton', 'last_four': '9753'},
+            {'name': 'Bank of America Atmos Rewards Ascent', 'issuer': 'Bank of America', 'brand_class': 'atmos', 'last_four': '1592'},
             {'name': 'U.S. Bank Cash Back', 'issuer': 'U.S. Bank', 'brand_class': 'us-bank', 'last_four': '7410'},
         ]
 
@@ -2815,6 +2968,154 @@ def initialize_enhanced_data():
         db.session.commit()
         print("Enhanced sample data created successfully!")
 
+# === MASTER DATABASE FUNCTIONS ===
+# These functions pull live data from the master database file
+
+def get_active_card_names():
+    """Get list of all active card names in user's wallet"""
+    active_cards = CardEnhanced.query.filter_by(is_active=True).all()
+    return [card.name for card in active_cards]
+
+def get_master_signup_bonuses():
+    """
+    Get signup bonuses for ALL cards in user's wallet from master database
+    This replaces get_real_signup_bonuses() to be completely data-driven
+    """
+    active_card_names = get_active_card_names()
+    all_bonuses = []
+
+    for card_name in active_card_names:
+        # Get bonuses from master database for this card
+        master_bonuses = cards_service.get_card_signup_bonuses(card_name)
+
+        for bonus in master_bonuses:
+            # Get user progress from database for this specific bonus
+            card = CardEnhanced.query.filter_by(name=card_name, is_active=True).first()
+            existing_bonus = SignupBonus.query.filter_by(
+                card_id=card.id if card else None
+            ).first()
+
+            # Merge master data with user progress
+            bonus_data = {
+                'card_name': card_name,
+                'bonus_amount': bonus.get('bonus_amount', ''),
+                'description': bonus.get('description', ''),
+                'required_spend': bonus.get('required_spend', 0),
+                'deadline_months': bonus.get('deadline_months', 0),
+                # User progress data (if exists)
+                'current_spend': existing_bonus.current_spend if existing_bonus else 0,
+                'progress_percent': existing_bonus.progress_percent if existing_bonus else 0,
+                'status': existing_bonus.status if existing_bonus else 'active',
+                'status_text': existing_bonus.status_text if existing_bonus else 'Active',
+                'deadline': existing_bonus.deadline if existing_bonus else None
+            }
+
+            # Only show non-completed bonuses
+            if bonus_data['status'] != 'completed':
+                all_bonuses.append(bonus_data)
+
+    return sorted(all_bonuses, key=lambda x: x.get('required_spend', 0), reverse=True)
+
+def get_master_threshold_bonuses():
+    """
+    Get threshold bonuses for ALL cards in user's wallet from master database
+    This replaces get_real_spending_bonuses() to be completely data-driven
+    """
+    active_card_names = get_active_card_names()
+    all_bonuses = []
+
+    for card_name in active_card_names:
+        # Get threshold bonuses from master database for this card
+        master_bonuses = cards_service.get_card_threshold_bonuses(card_name)
+
+        for bonus in master_bonuses:
+            # Get user progress from database for this specific bonus
+            card = CardEnhanced.query.filter_by(name=card_name, is_active=True).first()
+            existing_bonus = OtherBonus.query.filter_by(
+                card_id=card.id if card else None
+            ).first()
+
+            # Merge master data with user progress
+            bonus_data = {
+                'card_name': card_name,
+                'bonus_amount': bonus.get('bonus_amount', ''),
+                'description': bonus.get('description', ''),
+                'required_spend': bonus.get('required_spend', 0),
+                'frequency': bonus.get('frequency', 'annual'),
+                'cap_amount': bonus.get('required_spend', 0),  # Use required_spend as cap_amount for threshold bonuses
+                'category': 'Threshold Bonus',  # Default category for threshold bonuses
+                'multiplier': bonus.get('bonus_amount', ''),  # Use bonus amount as display multiplier
+                'reset_date': 'Dec 31, 2025',  # Default reset date for annual bonuses
+                # User progress data (if exists) - OtherBonus model has different fields
+                'current_spend': getattr(existing_bonus, 'current_spend', 0) if existing_bonus else 0,
+                'progress_percent': getattr(existing_bonus, 'progress_percent', 0) if existing_bonus else 0,
+                'status': getattr(existing_bonus, 'status', 'active') if existing_bonus else 'active',
+                'status_text': getattr(existing_bonus, 'status_text', 'Active') if existing_bonus else 'Active'
+            }
+
+            # Only show non-completed bonuses
+            if bonus_data['status'] != 'completed':
+                all_bonuses.append(bonus_data)
+
+    return sorted(all_bonuses, key=lambda x: x.get('required_spend', 0), reverse=True)
+
+def get_master_credits_by_frequency(frequency):
+    """
+    Get credits for ALL cards in user's wallet from master database by frequency
+    This replaces get_real_credits_by_frequency() to be completely data-driven
+    """
+    active_card_names = get_active_card_names()
+    all_credits = []
+
+    for card_name in active_card_names:
+        # Get credits from master database for this card
+        master_credits = cards_service.get_card_credit_benefits(card_name)
+
+        for credit in master_credits:
+            # Only include credits matching the requested frequency
+            if credit.get('frequency', '').lower() == frequency.lower():
+                # Get user usage data from database for this specific credit
+                card = CardEnhanced.query.filter_by(name=card_name, is_active=True).first()
+                # Note: CreditBenefit model may have different field names, so we'll use a generic lookup
+                existing_credit = CreditBenefit.query.filter_by(
+                    card_id=card.id if card else None
+                ).first()  # For now, just get any credit for this card
+
+                # Merge master data with user usage
+                credit_data = {
+                    'card_name': card_name,
+                    'benefit_name': credit.get('benefit_name', ''),
+                    'credit_amount': credit.get('credit_amount', 0),
+                    'description': credit.get('description', ''),
+                    'frequency': credit.get('frequency', frequency),
+                    'category': credit.get('category', ''),
+                    # User usage data (if exists) - CreditBenefit model may have different fields
+                    'amount_used': getattr(existing_credit, 'amount_used', 0) if existing_credit else 0,
+                    'remaining_amount': getattr(existing_credit, 'remaining_amount', credit.get('credit_amount', 0)) if existing_credit else credit.get('credit_amount', 0),
+                    'usage_percent': getattr(existing_credit, 'usage_percent', 0) if existing_credit else 0,
+                    'last_reset': getattr(existing_credit, 'last_reset', None) if existing_credit else None
+                }
+
+                all_credits.append(credit_data)
+
+    # Sort by credit amount (highest first)
+    return sorted(all_credits, key=lambda x: x.get('credit_amount', 0), reverse=True)
+
+def get_master_used_credits_by_frequency(frequency):
+    """
+    Get used credits by frequency - this pulls user usage data
+    """
+    used_credits = []
+    credits = get_master_credits_by_frequency(frequency)
+
+    for credit in credits:
+        if credit['amount_used'] > 0:
+            used_credits.append(credit)
+
+    return used_credits
+
+# === ORIGINAL DATABASE FUNCTIONS (KEPT FOR COMPATIBILITY) ===
+
 def get_real_signup_bonuses():
     """Get signup bonuses from database (excluding completed ones)"""
     bonuses = SignupBonus.query.filter(SignupBonus.status != 'completed').all()
@@ -3009,8 +3310,8 @@ def get_used_credits_by_frequency(frequency):
     return sorted(result, key=safe_sort_key, reverse=True)
 
 def get_real_cards():
-    """Get cards from enhanced database"""
-    cards = CardEnhanced.query.all()
+    """Get active cards from enhanced database"""
+    cards = CardEnhanced.query.filter_by(is_active=True).all()
     return [{
         'id': card.id,
         'name': card.name,
@@ -3182,6 +3483,45 @@ def manual_reset_credits():
         return jsonify({
             'success': False,
             'error': str(e)
+        }), 500
+
+@app.route('/deactivate_card/<int:card_id>', methods=['POST'])
+def deactivate_card(card_id):
+    """Deactivate a credit card by hiding it from the UI (preserves data)"""
+    try:
+        # Get the card to deactivate
+        card = CardEnhanced.query.get(card_id)
+        if not card:
+            return jsonify({
+                'success': False,
+                'error': 'Card not found'
+            }), 404
+
+        # Check if card is already deactivated
+        if not card.is_active:
+            return jsonify({
+                'success': False,
+                'error': 'Card is already deactivated'
+            }), 400
+
+        # Store card name for response
+        card_name = card.name
+
+        # Deactivate the card by setting is_active to False
+        card.is_active = False
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f'Card "{card_name}" has been deactivated successfully'
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deactivating card {card_id}: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'An error occurred while deactivating the card'
         }), 500
 
 # === AUTOMATED CREDIT RESET FUNCTIONALITY ===

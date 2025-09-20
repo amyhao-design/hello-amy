@@ -383,27 +383,19 @@
             <h3>Add New Credit Card</h3>
             <span class="close" onclick="closeAddCardModal()">&times;</span>
         </div>
-        <form id="addCardForm" onsubmit="addNewCard(event)">
+        <div id="cardSelectionView">
             <div class="form-group">
-                <label for="cardVendor">Card Vendor:</label>
-                <select id="cardVendor" name="vendor" class="form-control" required>
-                    <option value="">Select a vendor...</option>
-                    <option value="Chase">Chase</option>
-                    <option value="American Express">American Express</option>
-                    <option value="Capital One">Capital One</option>
-                    <option value="Citi">Citi</option>
-                    <option value="Discover">Discover</option>
-                    <option value="Bank of America">Bank of America</option>
-                    <option value="Wells Fargo">Wells Fargo</option>
-                    <option value="U.S. Bank">U.S. Bank</option>
-                    <option value="Synchrony">Synchrony</option>
-                    <option value="Other">Other</option>
+                <label for="availableCards">Select a Credit Card:</label>
+                <select id="availableCards" class="form-control" required>
+                    <option value="">Loading available cards...</option>
                 </select>
+                <div class="form-help-text">
+                    Cards are automatically loaded with all their bonuses and benefits
+                </div>
             </div>
-            <div class="form-group">
-                <label for="cardName">Card Name:</label>
-                <input type="text" id="cardName" name="name" class="form-control"
-                       placeholder="e.g., Sapphire Reserve, Gold Card, etc." required>
+            <div id="selectedCardPreview" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <h4 style="margin-top: 0;">Card Preview:</h4>
+                <div id="previewContent"></div>
             </div>
             <div class="form-group">
                 <label for="lastFour">Last 4 Digits (Optional):</label>
@@ -412,9 +404,13 @@
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-secondary" onclick="closeAddCardModal()">Cancel</button>
-                <button type="submit" class="btn-primary">Add Card</button>
+                <button type="button" class="btn-primary" onclick="addSelectedCard()" id="addCardBtn" disabled>Add Card with Benefits</button>
             </div>
-        </form>
+        </div>
+        <div id="loadingView" style="display: none; text-align: center; padding: 20px;">
+            <div class="loading-spinner"></div>
+            <p>Adding card and importing all bonuses...</p>
+        </div>
     </div>
 </div>
 
@@ -534,27 +530,107 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Add New Card Modal Functions
+// Add New Card Modal Functions with Google Sheets Integration
 function openAddCardModal() {
     document.getElementById('addCardModal').style.display = 'block';
+    loadAvailableCards();
 }
 
 function closeAddCardModal() {
     document.getElementById('addCardModal').style.display = 'none';
-    document.getElementById('addCardForm').reset();
+    document.getElementById('cardSelectionView').style.display = 'block';
+    document.getElementById('loadingView').style.display = 'none';
+    resetCardSelection();
 }
 
-function addNewCard(event) {
-    event.preventDefault();
+function resetCardSelection() {
+    document.getElementById('availableCards').selectedIndex = 0;
+    document.getElementById('selectedCardPreview').style.display = 'none';
+    document.getElementById('addCardBtn').disabled = true;
+    document.getElementById('lastFour').value = '';
+}
 
-    const formData = new FormData(event.target);
+function loadAvailableCards() {
+    const select = document.getElementById('availableCards');
+    select.innerHTML = '<option value="">Loading available cards...</option>';
+
+    fetch('/api/available-cards')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                select.innerHTML = '<option value="">Select a credit card...</option>';
+                data.cards.forEach(card => {
+                    const option = document.createElement('option');
+                    option.value = card.card_name;
+                    option.textContent = `${card.card_name} (${card.issuer || 'Unknown Issuer'})`;
+                    option.dataset.issuer = card.issuer || '';
+                    option.dataset.brandClass = card.brand_class || '';
+                    select.appendChild(option);
+                });
+
+                // Add event listener for card selection
+                select.addEventListener('change', function() {
+                    if (this.value) {
+                        showCardPreview(this.value, this.options[this.selectedIndex]);
+                        document.getElementById('addCardBtn').disabled = false;
+                    } else {
+                        document.getElementById('selectedCardPreview').style.display = 'none';
+                        document.getElementById('addCardBtn').disabled = true;
+                    }
+                });
+            } else {
+                select.innerHTML = '<option value="">Error loading cards. Please check Google Sheets configuration.</option>';
+                console.error('Error loading cards:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching available cards:', error);
+            select.innerHTML = '<option value="">Error loading cards. Please try again.</option>';
+        });
+}
+
+function showCardPreview(cardName, optionElement) {
+    const preview = document.getElementById('selectedCardPreview');
+    const content = document.getElementById('previewContent');
+
+    const issuer = optionElement.dataset.issuer;
+    const brandClass = optionElement.dataset.brandClass;
+
+    content.innerHTML = `
+        <p><strong>Card:</strong> ${cardName}</p>
+        <p><strong>Issuer:</strong> ${issuer || 'Not specified'}</p>
+        <p><strong>Type:</strong> ${brandClass || 'Not specified'}</p>
+        <div style="margin-top: 10px; padding: 10px; background: #e8f5e8; border-radius: 4px; border-left: 4px solid #28a745;">
+            <strong>✨ What will be imported:</strong><br>
+            • All signup bonuses with spend requirements and deadlines<br>
+            • Category spending bonuses with caps and reset dates<br>
+            • Annual statement credits and benefits<br>
+            • Anniversary and threshold bonuses
+        </div>
+    `;
+
+    preview.style.display = 'block';
+}
+
+function addSelectedCard() {
+    const selectedCard = document.getElementById('availableCards').value;
+    const lastFour = document.getElementById('lastFour').value;
+
+    if (!selectedCard) {
+        alert('Please select a credit card first.');
+        return;
+    }
+
+    // Show loading view
+    document.getElementById('cardSelectionView').style.display = 'none';
+    document.getElementById('loadingView').style.display = 'block';
+
     const cardData = {
-        vendor: formData.get('vendor'),
-        name: formData.get('name'),
-        last_four: formData.get('last_four') || ''
+        card_name: selectedCard,
+        last_four: lastFour || ''
     };
 
-    fetch('/add-card', {
+    fetch('/add-card-from-sheets', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -564,18 +640,22 @@ function addNewCard(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Card added successfully!');
+            alert(`🎉 ${data.message}\n\nYour new card is now in your wallet with all its bonuses and benefits!`);
             location.reload(); // Refresh to show new card
         } else {
             alert('Error adding card: ' + data.error);
+            // Show selection view again
+            document.getElementById('cardSelectionView').style.display = 'block';
+            document.getElementById('loadingView').style.display = 'none';
         }
     })
     .catch(error => {
         console.error('Error:', error);
         alert('Error adding card. Please try again.');
+        // Show selection view again
+        document.getElementById('cardSelectionView').style.display = 'block';
+        document.getElementById('loadingView').style.display = 'none';
     });
-
-    closeAddCardModal();
 }
 
 // Credit Management Functions

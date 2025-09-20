@@ -1,0 +1,43 @@
+card_name,benefit_name,credit_amount,description,frequency,category
+Bank of America Atmos Rewards Ascent,Airport Security Credit,120,Up to $120 Airport Security Credit every four years,every_4_years,Travel
+American Express Gold Card,Resy Credit,100,Up to $100 back annually for Resy purchases,annual,Dining
+American Express Gold Card,Uber Cash,120,$10 in Uber Cash each month,monthly,Transportation
+American Express Gold Card,Dunkin' Donuts Credit,84,$7 in monthly statement credits for Dunkin Donuts,monthly,Dining
+American Express Gold Card,Dining Credit,120,$10 in statement credits monthly at select dining partners,monthly,Dining
+American Express Hilton Honors Aspire,CLEAR Plus Credit,209,$209 per calendar year in credits for a CLEAR plus membership,annual,Travel
+American Express Hilton Honors Aspire,Hilton Resort Credit,400,Up to $200 in statement credits semi-annually for Hilton Resorts,semi-annually,Travel
+American Express Hilton Honors Aspire,Flight Credit,200,$50 in statement credits each quarter on flight purchases,quarterly,Travel
+American Express Hilton Honors Aspire,Luxury Hotel Credit,100,$100 resort credit at Waldorf Astoria and Conrad (2 night min),per_stay,Travel
+American Express Hilton Honors Surpass,Hilton Credit,200,$50 in statement credits each quarter for Hilton purchases,quarterly,Travel
+American Express Platinum,Uber One Membership,120,Up to $120 for Uber One membership,annual,Transportation
+American Express Platinum,Airline Fee Credit,200,Up to $200 in statement credits with selected airline,annual,Travel
+American Express Platinum,CLEAR Membership,209,Up to $209 annually for CLEAR membership,annual,Travel
+American Express Platinum,Equinox Credit,300,Up to $300 in Equinox credit per calendar year,annual,Fitness
+American Express Platinum,Oura Ring Credit,200,Up to $200 annual Oura Ring credit,annual,Wellness
+American Express Platinum,Saks Credit,100,Up to a $100 per calendar year at Saks,annual,Shopping
+American Express Platinum,Uber Cash,200,Up to $200 per calendar year in Uber Cash,annual,Transportation
+American Express Platinum,Walmart+ Credit,155,Up to a $155 statement credit per calendar year for Walmart+,annual,Shopping
+American Express Platinum,Hotel Credit,600,Up to $300 biannually for hotel credit,semi-annually,Travel
+American Express Platinum,Lululemon Credit,300,Up to $75 quarterly at Lululemon,quarterly,Shopping
+American Express Platinum,Resy Restaurants Credit,400,Up to $100 quarterly for U.S. Resy Restaurants,quarterly,Dining
+American Express Platinum,Streaming Credit,300,"Up to $25 monthly for Paramount+, YouTube Premium/TV",monthly,Entertainment
+American Express Platinum,Global Entry / TSA,120,Up to $120 statement credit for Global Entry/TSA PreCheck,every_4_years,Travel
+Chase Sapphire Reserve,Travel Credit,300,Up to $300 annually towards travel purchases,annual,Travel
+Chase Sapphire Reserve,The Edit Hotel Credit,500,Up to $500 annually for prepaid bookings for The Edit properties,annual,Travel
+Chase Sapphire Reserve,Partner Hotel Credit,250,$250 on prepaid hotel bookings for specific partners,annual,Travel
+Chase Sapphire Reserve,DashPass Membership,120,Complimentary $120 DashPass membership annually,annual,Dining
+Chase Sapphire Reserve,Peloton Membership Credit,120,$120 in annual statement credit towards Peloton membership,annual,Fitness
+Chase Sapphire Reserve,Exclusive Dining Credit,300,$150 in statement credits semi-annually for exclusive dining,semi-annually,Dining
+Chase Sapphire Reserve,Ticketing Credit,300,$150 semi-annually for purchases on StubHub and viagogo.com,semi-annually,Entertainment
+Chase Sapphire Reserve,DoorDash Credit,300,"$25 per month to spend on DoorDash (5restaurant,2x10 grocery)",monthly,Dining
+Chase Sapphire Reserve,Lyft Credit,120,$10 monthly Lyft credit,monthly,Transportation
+Chase Sapphire Reserve,Global Entry / TSA / NEXUS,120,"Reimbursement for Global Entry, TSA Precheck, or NEXUS",every_4_years,Travel
+Chase United Quest,United Travel Credit,200,$200 United travel credit,annual,Travel
+Chase United Quest,Hotel Credit,150,Up to $150 in credits annually on prepaid hotel stays,annual,Travel
+Chase United Quest,Rideshare Credit,100,Up to $100 in credits each calendar year on rideshare,annual,Transportation
+Chase United Quest,Rental Car Credit,80,Up to $80 in United travel credits annually for Avis/Budget,annual,Travel
+Chase United Quest,Instacart Credit,180,Up to $180 Instacart credits each calendar year,annual,Groceries
+Chase United Quest,JSX Credit,150,Up to $150 in credits annually on flights via JSX,annual,Travel
+Chase United Quest,Checked Bag Credit,360,Free first and second checked bags (value up to $360 per trip),per_flight,Travel
+Capital One VentureX,Travel Credit,300,$300 travel credit for bookings through Capital One Travel,annual,Travel
+Capital One VentureX,Global Entry / TSA PreCheck,120,Global Entry or TSA PreCheck credit,every_4_years,Travel
