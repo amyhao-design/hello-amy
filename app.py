@@ -1720,7 +1720,7 @@ def mark_spending_bonus_complete():
         spending_bonus.status = 'completed'
         spending_bonus.completed_date = datetime.datetime.utcnow()
 
-        # Create a new annual credit based on the spending bonus reward
+        # Create a new one-time credit based on the spending bonus reward
         # Calculate expiry date: 1 year from completion date
         expiry_date = datetime.datetime.utcnow() + relativedelta(years=1)
 
@@ -1730,7 +1730,7 @@ def mark_spending_bonus_complete():
             benefit_name=f"{category} Reward",
             credit_amount=1,  # Set to 1 as placeholder, display will use original_multiplier
             description=f"Earned from completing: {category} ({card_name})",
-            frequency='annual',
+            frequency='onetime',
             reset_date=expiry_date.date(),
             has_progress=False,
             original_multiplier=multiplier,  # Store original format like "1 night", "2 credits"
@@ -1744,7 +1744,7 @@ def mark_spending_bonus_complete():
 
         return jsonify({
             'success': True,
-            'message': f'Spending bonus for {card_name} marked as complete and {multiplier} added to annual credits (expires {expiry_date.strftime("%B %d, %Y")})'
+            'message': f'Spending bonus for {card_name} marked as complete and {multiplier} added to one-time credits (expires {expiry_date.strftime("%B %d, %Y")})'
         }), 200
 
     except Exception as e:

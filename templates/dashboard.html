@@ -355,11 +355,18 @@
                     </div>
                     <div class="credit-actions">
                         <span class="status-badge {{ credit.status }}">{{ credit.status_text }}</span>
-                        {% if credit.status == 'available' %}
-                        <button class="btn-use-credit" onclick="markCreditAsUsed('onetime', '{{ credit.card_name }}', '{{ credit.benefit_name }}')">
-                            Mark as Used
-                        </button>
-                        {% endif %}
+                        <div class="credit-buttons">
+                            {% if credit.status == 'available' %}
+                            <button class="btn-use-credit" onclick="markCreditAsUsed('onetime', '{{ credit.card_name }}', '{{ credit.benefit_name }}')">
+                                Mark as Used
+                            </button>
+                            {% endif %}
+                            {% if credit.from_spending_bonus %}
+                            <button class="btn-undo-bonus" onclick="undoBonusCompletion('{{ credit.card_name }}', '{{ credit.benefit_name }}', {{ credit.spending_bonus_id }})">
+                                Undo bonus completion
+                            </button>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
